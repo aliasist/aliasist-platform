@@ -4,22 +4,25 @@ import type { Env } from "../env";
 
 export const ai = new Hono<{ Bindings: Env }>();
 
+const SIST_IDS = ["data", "eco", "pulse", "space", "tika"] as const;
+type SistId = (typeof SIST_IDS)[number];
+
 const ExplainBody = z.object({
-  sist: z.string(),
+  sist: z.enum(SIST_IDS),
   question: z.string().min(1).max(2000),
   context: z.record(z.string(), z.unknown()).optional(),
 });
 
 type Source = "ollama" | "groq" | "fallback";
 
-const systemPrompt = (sist: string) =>
+const systemPrompt = (sist: SistId) =>
   `You are the Aliasist ${sist.toUpperCase()} explainer. ` +
   "Be concise, educational, and safety-first. Ground answers in the provided context. " +
   "If you are uncertain, say so. Do not invent sources.";
 
 const callOllama = async (
   env: Env,
-  sist: string,
+  sist: SistId,
   question: string,
   context: unknown,
   signal: AbortSignal,
@@ -47,7 +50,7 @@ const callOllama = async (
 
 const callGroq = async (
   env: Env,
-  sist: string,
+  sist: SistId,
   question: string,
   context: unknown,
 ): Promise<string> => {

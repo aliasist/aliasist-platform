@@ -16,8 +16,11 @@ export const HealthResponse = z.object({
 });
 export type HealthResponse = z.infer<typeof HealthResponse>;
 
+export const SIST_IDS = ["data", "eco", "pulse", "space", "tika"] as const;
+export type SistId = (typeof SIST_IDS)[number];
+
 export const AiExplainRequest = z.object({
-  sist: z.string(),
+  sist: z.enum(SIST_IDS),
   question: z.string().min(1).max(2000),
   context: z.record(z.string(), z.unknown()).optional(),
 });
@@ -67,8 +70,17 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
     }
     const res = await fx(`${baseUrl}${path}`, { ...init, headers });
     const text = await res.text();
-    const json = text ? JSON.parse(text) : null;
-    if (!res.ok) throw new AliasistApiError(res.status, res.statusText, json);
+    let json: unknown = null;
+    if (text) {
+      try {
+        json = JSON.parse(text);
+      } catch {
+        // non-JSON body (HTML error page, plain-text upstream error, etc.)
+      }
+    }
+    if (!res.ok) {
+      throw new AliasistApiError(res.status, res.statusText, json ?? text);
+    }
     return schema.parse(json);
   };
 
