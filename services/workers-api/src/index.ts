@@ -21,7 +21,10 @@ app.notFound((c) =>
 
 app.onError((err, c) => {
   console.error("worker_error", err);
-  return c.json({ error: "internal", message: err.message }, 500);
+  return c.json(
+    { error: "internal", message: "An unexpected error occurred." },
+    500,
+  );
 });
 
 export default app;
