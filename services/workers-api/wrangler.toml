@@ -2,7 +2,7 @@ name = "aliasist-workers-api"
 main = "src/index.ts"
 compatibility_date = "2024-12-18"
 compatibility_flags = ["nodejs_compat"]
-workers_dev = false
+workers_dev = true
 
 [observability]
 enabled = true
@@ -19,11 +19,12 @@ AI_GROQ_MODEL = "llama-3.3-70b-versatile"
 #   AI_OLLAMA_URL     — e.g. https://ai.aliasist.tech (Cloudflare Tunnel to Azure)
 
 # --- production environment ---
+# Bound to api.aliasist.tech via a Worker Custom Domain (not a route).
+# Custom domain was provisioned via the CF API and is managed outside
+# wrangler to keep deploys idempotent without zone-level write scope.
 [env.production]
 name = "aliasist-workers-api"
-routes = [
-  { pattern = "api.aliasist.tech/*", zone_name = "aliasist.tech" }
-]
+workers_dev = true
 
 [env.production.vars]
 ALLOWED_ORIGIN = "https://aliasist.tech,https://www.aliasist.tech"
