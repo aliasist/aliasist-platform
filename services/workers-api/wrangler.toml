@@ -1,0 +1,31 @@
+name = "aliasist-workers-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+[observability]
+enabled = true
+
+# CORS allowlist (comma-separated). Override per environment.
+[vars]
+ALLOWED_ORIGIN = "http://localhost:5173,https://aliasist.tech,https://www.aliasist.tech"
+AI_OLLAMA_MODEL = "llama3.1:8b"
+AI_GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Secrets (set with `wrangler secret put`):
+#   ADMIN_TOKEN       — required to hit privileged routes
+#   GROQ_API_KEY      — fallback AI provider
+#   AI_OLLAMA_URL     — e.g. https://ai.aliasist.tech (Cloudflare Tunnel to Azure)
+
+# --- production environment ---
+[env.production]
+name = "aliasist-workers-api"
+routes = [
+  { pattern = "api.aliasist.tech/*", zone_name = "aliasist.tech" }
+]
+
+[env.production.vars]
+ALLOWED_ORIGIN = "https://aliasist.tech,https://www.aliasist.tech"
+AI_OLLAMA_MODEL = "llama3.1:8b"
+AI_GROQ_MODEL = "llama-3.3-70b-versatile"

@@ -1,0 +1,29 @@
+/* Aliasist UI — global styles consumed by apps/portal via @aliasist/ui/styles.css */
+
+:root {
+  color-scheme: dark;
+  --aliasist-radius: 14px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: Inter, "Inter Variable", system-ui, sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+*:focus-visible {
+  outline: none;
+}
+
+/* selection */
+::selection {
+  background: rgba(11, 207, 114, 0.25);
+  color: #f3f5f9;
+}
