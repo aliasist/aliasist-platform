@@ -116,6 +116,50 @@ export interface ListDataCentersFilters {
   offset?: number;
 }
 
+/** Input for admin create. Slug is optional — worker derives it from company+name+city if missing. */
+export const DataCenterInput = z.object({
+  slug: z.string().optional(),
+  name: z.string().min(1),
+  company: z.string().min(1),
+  companyType: z.enum(DC_COMPANY_TYPES),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  city: z.string().min(1),
+  state: z.string().min(1),
+  country: z.string().optional(),
+  capacityMW: z.number().nonnegative().nullable().optional(),
+  estimatedAnnualGWh: z.number().nonnegative().nullable().optional(),
+  waterUsageMillionGallons: z.number().nonnegative().nullable().optional(),
+  status: z.enum(DC_STATUSES),
+  yearOpened: z.number().int().nullable().optional(),
+  yearPlanned: z.number().int().nullable().optional(),
+  investmentBillions: z.number().nonnegative().nullable().optional(),
+  acreage: z.number().nonnegative().nullable().optional(),
+  primaryModels: z.array(z.string()).optional(),
+  communityImpact: z.string().nullable().optional(),
+  communityResistance: z.boolean().optional(),
+  gridRisk: z.enum(DC_GRID_RISKS).nullable().optional(),
+  renewablePercent: z.number().min(0).max(100).nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+export type DataCenterInput = z.infer<typeof DataCenterInput>;
+
+export const DataCenterPatch = DataCenterInput.partial();
+export type DataCenterPatch = z.infer<typeof DataCenterPatch>;
+
+export const AuditEntry = z.object({
+  id: z.number(),
+  action: z.enum(["create", "update", "delete"]),
+  slug: z.string(),
+  actor: z.string().nullable(),
+  payload: z.unknown(),
+  createdAt: z.string(),
+});
+export type AuditEntry = z.infer<typeof AuditEntry>;
+
+export const AuditList = z.object({ items: z.array(AuditEntry) });
+export type AuditList = z.infer<typeof AuditList>;
+
 // --- Client ---
 
 export interface ClientOptions {
@@ -204,6 +248,36 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
 
     getDataCenterStats: () =>
       request("/data/stats", { method: "GET" }, DataCenterStats),
+
+    // --- admin (requires bearer token) ---
+
+    createDataCenter: (body: DataCenterInput) =>
+      request(
+        "/data/data-centers",
+        { method: "POST", body: JSON.stringify(DataCenterInput.parse(body)) },
+        DataCenter,
+      ),
+
+    updateDataCenter: (slug: string, body: DataCenterPatch) =>
+      request(
+        `/data/data-centers/${encodeURIComponent(slug)}`,
+        { method: "PUT", body: JSON.stringify(DataCenterPatch.parse(body)) },
+        DataCenter,
+      ),
+
+    deleteDataCenter: (slug: string) =>
+      request(
+        `/data/data-centers/${encodeURIComponent(slug)}`,
+        { method: "DELETE" },
+        z.object({ ok: z.literal(true) }),
+      ),
+
+    listAudit: (limit = 50) =>
+      request(
+        `/data/audit?limit=${limit}`,
+        { method: "GET" },
+        AuditList,
+      ),
   };
 };
 
