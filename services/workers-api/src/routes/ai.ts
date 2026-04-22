@@ -123,14 +123,15 @@ ai.post("/explain", async (c) => {
     }
   }
 
-  return c.json(
-    {
-      answer:
-        "AI is temporarily unavailable. Your question is logged; try again soon.",
-      model: "fallback",
-      source: "fallback" satisfies Source,
-      latencyMs: Date.now() - start,
-    },
-    503,
-  );
+  // Return 200 (not 503) so the typed client parses the body. The `source:
+  // "fallback"` field already signals degraded state; 5xx is reserved for
+  // *unexpected* failures. The UI keys off `source === "fallback"` to show
+  // the "AI is temporarily unavailable" panel.
+  return c.json({
+    answer:
+      "AI is temporarily unavailable. Your question is logged; try again soon.",
+    model: "fallback",
+    source: "fallback" satisfies Source,
+    latencyMs: Date.now() - start,
+  });
 });
