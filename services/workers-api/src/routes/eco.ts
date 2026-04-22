@@ -98,6 +98,9 @@ eco.get("/earthquakes", async (c) => {
   if (!Number.isFinite(minMag) || minMag < 0 || minMag > 10) {
     return c.json({ error: "minMag_invalid" }, 400);
   }
+  if (!Number.isFinite(days) || days < 1 || days > 30) {
+    return c.json({ error: "days_invalid" }, 400);
+  }
   const feed = pickUsgsFeed(minMag, days);
   if (!feed) return c.json({ error: "feed_unavailable" }, 400);
 

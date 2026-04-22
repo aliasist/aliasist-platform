@@ -151,6 +151,14 @@ describe("GET /eco/earthquakes", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejects non-numeric / out-of-range days", async () => {
+    const { request } = makeHarness();
+    const a = await request("/eco/earthquakes?days=abc");
+    expect(a.status).toBe(400);
+    const b = await request("/eco/earthquakes?days=999");
+    expect(b.status).toBe(400);
+  });
+
   it("normalizes USGS quake features and filters by min magnitude", async () => {
     stubFetch({
       "earthquake.usgs.gov": () =>
