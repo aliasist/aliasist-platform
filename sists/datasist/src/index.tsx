@@ -9,7 +9,7 @@ export const manifest: SistManifest = {
   element: DataSistRoutes,
   accent: "ufo",
   icon: "◎",
-  status: "alpha",
+  status: "live",
 };
 
 export { DataSistRoutes } from "./routes";
