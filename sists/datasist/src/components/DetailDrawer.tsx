@@ -129,7 +129,7 @@ export const DetailDrawer = ({ dc, onClose }: DetailDrawerProps) => {
             </section>
           ) : null}
 
-          <AiExplainer dc={dc} />
+          <AiExplainer key={dc.slug} dc={dc} />
         </div>
       </aside>
     </>

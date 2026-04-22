@@ -34,14 +34,14 @@ data.get("/data-centers", async (c) => {
     return c.json(result);
   } catch (err) {
     if (notConfigured(err)) {
-      return c.json(
-        {
-          items: [],
-          total: 0,
-          note: "DATA_DB is not bound in this environment. Run `pnpm d1:migrate` against aliasist-datasist and bind DATA_DB in wrangler.toml.",
-        },
-        503,
-      );
+      // 200 (not 503) so the client can parse the body and render a
+      // "setup needed" panel instead of a generic error. 503 is reserved for
+      // *unexpected* DB failures.
+      return c.json({
+        items: [],
+        total: 0,
+        note: "DATA_DB is not bound in this environment. Run `pnpm d1:migrate` against aliasist-datasist and bind DATA_DB in wrangler.toml.",
+      });
     }
     throw err;
   }
