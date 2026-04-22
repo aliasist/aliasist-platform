@@ -331,9 +331,16 @@ const CAMEL_TO_COLUMN: Record<keyof DataCenterInput, string> = {
   notes: "notes",
 };
 
+/**
+ * Slug contract shared between the admin route and the DB layer. Both sides
+ * validate against this regex so a row can never be inserted with a slug the
+ * GET/PUT/DELETE routes refuse to address.
+ */
+export const SLUG_RE = /^[a-z0-9-]{2,128}$/;
+
 export class DataCenterError extends Error {
   constructor(
-    public code: "slug_conflict" | "not_found",
+    public code: "slug_conflict" | "not_found" | "invalid_slug",
     message: string,
   ) {
     super(message);
@@ -347,6 +354,12 @@ export const createDataCenter = async (
 ): Promise<DataCenter> => {
   if (!env.DATA_DB) throw new Error("data_db_not_configured");
   const slug = input.slug?.trim() || deriveSlug(input);
+  if (!SLUG_RE.test(slug)) {
+    throw new DataCenterError(
+      "invalid_slug",
+      `derived slug '${slug}' is empty or invalid; provide an explicit slug`,
+    );
+  }
   const row = inputToRow(input, slug);
   const placeholders = COLUMNS.map(() => "?").join(", ");
   const values = COLUMNS.map((c) => row[c as keyof typeof row]);

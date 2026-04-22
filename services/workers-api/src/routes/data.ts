@@ -11,6 +11,7 @@ import {
   getStats,
   listAudit,
   listDataCenters,
+  SLUG_RE,
   updateDataCenter,
 } from "../db/datasist";
 
@@ -30,8 +31,6 @@ const ListQuery = z.object({
   limit: z.coerce.number().int().min(1).max(1000).optional(),
   offset: z.coerce.number().int().min(0).optional(),
 });
-
-const SLUG_RE = /^[a-z0-9-]{2,128}$/;
 
 const DataCenterInput = z.object({
   slug: z.string().regex(SLUG_RE).optional(),
@@ -158,8 +157,13 @@ data.post("/data-centers", requireAdmin, async (c) => {
     return c.json(created, 201);
   } catch (err) {
     if (notConfigured(err)) return c.json({ error: "not_configured" }, 503);
-    if (err instanceof DataCenterError && err.code === "slug_conflict") {
-      return c.json({ error: "slug_conflict", message: err.message }, 409);
+    if (err instanceof DataCenterError) {
+      if (err.code === "slug_conflict") {
+        return c.json({ error: "slug_conflict", message: err.message }, 409);
+      }
+      if (err.code === "invalid_slug") {
+        return c.json({ error: "invalid_slug", message: err.message }, 400);
+      }
     }
     throw err;
   }
