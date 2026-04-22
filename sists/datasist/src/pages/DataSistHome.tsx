@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import type {
   DataCenter,
   DataCenterStats,
@@ -10,6 +11,7 @@ import { WorldMap } from "../components/WorldMap";
 import { FilterRail } from "../components/FilterRail";
 import { StatsStrip } from "../components/StatsStrip";
 import { DetailDrawer } from "../components/DetailDrawer";
+import { AdminTokenPill } from "../components/AdminTokenPill";
 import {
   companyTypeLabel,
   formatMW,
@@ -107,7 +109,16 @@ export const DataSistHome = () => {
             disclosures and public filings, with every inferred field labeled.
           </p>
         </div>
-        <Pill tone="live">Live · curated dataset</Pill>
+        <div className="flex flex-wrap items-center gap-2">
+          <Pill tone="live">Live · curated dataset</Pill>
+          <AdminTokenPill />
+          <Link
+            to="/data/admin"
+            className="rounded-md border border-ink-700 px-3 py-1.5 text-[10px] uppercase tracking-[0.14em] text-ink-300 transition hover:border-ufo-500 hover:text-ufo-300"
+          >
+            Admin →
+          </Link>
+        </div>
       </header>
 
       <StatsStrip stats={stats} loading={state.loading} />
