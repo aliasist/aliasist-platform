@@ -146,14 +146,8 @@ eco.get("/space-weather", async (c) => {
     cached(300),
   );
   if (!res.ok) return c.json({ error: "upstream_error", status: res.status }, 502);
-  const raw = (await res.json()) as unknown[][];
-  // First row is headers.
-  const rows = raw.slice(1).map((r) => ({
-    time: safeString(r[0], 32),
-    kpIndex: pickNumber(Number(r[1])),
-    aRunning: pickNumber(Number(r[2])),
-    stationCount: pickNumber(Number(r[3])),
-  }));
+  const raw = (await res.json()) as unknown;
+  const rows = parseKpFeed(raw);
   const latest = rows[rows.length - 1] ?? null;
   return c.json({
     source: "noaa-swpc",
@@ -161,6 +155,41 @@ eco.get("/space-weather", async (c) => {
     history: rows.slice(-24),
   });
 });
+
+/**
+ * NOAA SWPC has shipped the planetary-k-index feed as both array-of-arrays
+ * (`[[headers], [row], ...]`) and array-of-objects
+ * (`[{time_tag, Kp, a_running, station_count}, ...]`) at different points
+ * in time. Support both shapes so we don't silently flatline if they flip
+ * it again.
+ */
+export interface KpRow {
+  time: string | null;
+  kpIndex: number | null;
+  aRunning: number | null;
+  stationCount: number | null;
+}
+
+export const parseKpFeed = (raw: unknown): KpRow[] => {
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  const first = raw[0];
+  const isObject =
+    first !== null && typeof first === "object" && !Array.isArray(first);
+  if (isObject) {
+    return (raw as Record<string, unknown>[]).map((r) => ({
+      time: safeString(r["time_tag"], 32),
+      kpIndex: pickNumber(Number(r["Kp"] ?? r["kp_index"] ?? r["kp"])),
+      aRunning: pickNumber(Number(r["a_running"])),
+      stationCount: pickNumber(Number(r["station_count"])),
+    }));
+  }
+  return (raw as unknown[][]).slice(1).map((r) => ({
+    time: safeString(r[0], 32),
+    kpIndex: pickNumber(Number(r[1])),
+    aRunning: pickNumber(Number(r[2])),
+    stationCount: pickNumber(Number(r[3])),
+  }));
+};
 
 /**
  * GET /eco/signals — aggregated "what's happening on Earth right now"
@@ -177,7 +206,7 @@ eco.get("/signals", async (c) => {
       "features",
     ),
     safeFetch<UsgsQuakeFeature>(
-      "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson",
+      "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson",
       cached(120),
       "features",
     ),
@@ -190,9 +219,12 @@ eco.get("/signals", async (c) => {
       "https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json",
       cached(300),
     )
-      .then((r) => (r.ok ? (r.json() as Promise<unknown[][]>) : null))
+      .then((r) => (r.ok ? (r.json() as Promise<unknown>) : null))
       .catch(() => null),
   ]);
+
+  const kpRows = kp ? parseKpFeed(kp) : [];
+  const kpLatest = kpRows[kpRows.length - 1] ?? null;
 
   return c.json({
     alerts: alerts
@@ -207,15 +239,8 @@ eco.get("/signals", async (c) => {
       .map(normalizeEonetEvent)
       .filter((e): e is NormalizedEvent => e !== null)
       .slice(0, 30),
-    spaceWeather: kp
-      ? (() => {
-          const last = kp.at(-1);
-          if (!last) return null;
-          return {
-            time: safeString(last[0], 32),
-            kpIndex: pickNumber(Number(last[1])),
-          };
-        })()
+    spaceWeather: kpLatest
+      ? { time: kpLatest.time, kpIndex: kpLatest.kpIndex }
       : null,
     generatedAt: new Date().toISOString(),
   });

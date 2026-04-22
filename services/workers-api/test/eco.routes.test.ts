@@ -255,7 +255,7 @@ describe("GET /eco/events", () => {
 });
 
 describe("GET /eco/space-weather", () => {
-  it("returns latest Kp + trimmed history", async () => {
+  it("returns latest Kp + trimmed history (legacy array-of-arrays feed)", async () => {
     const header = ["time_tag", "kp_index", "a_running", "station_count"];
     const rows = Array.from({ length: 30 }, (_, i) => [
       `2025-04-01T${String(i).padStart(2, "0")}:00:00`,
@@ -276,6 +276,28 @@ describe("GET /eco/space-weather", () => {
     };
     expect(body.source).toBe("noaa-swpc");
     expect(body.latest?.kpIndex).toBe(29 % 9);
+    expect(body.history.length).toBe(24);
+  });
+
+  it("returns latest Kp when upstream ships array-of-objects shape", async () => {
+    const rows = Array.from({ length: 30 }, (_, i) => ({
+      time_tag: `2025-04-01T${String(i).padStart(2, "0")}:00:00`,
+      Kp: i % 9,
+      a_running: 5,
+      station_count: 8,
+    }));
+    stubFetch({
+      "services.swpc.noaa.gov": () => json(rows),
+    });
+    const { request } = makeHarness();
+    const res = await request("/eco/space-weather");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      latest: { kpIndex: number | null; aRunning: number | null } | null;
+      history: { kpIndex: number | null }[];
+    };
+    expect(body.latest?.kpIndex).toBe(29 % 9);
+    expect(body.latest?.aRunning).toBe(5);
     expect(body.history.length).toBe(24);
   });
 });
