@@ -7,6 +7,17 @@ workers_dev = true
 [observability]
 enabled = true
 
+# --- D1 bindings ---
+# DataSist curated data-center intelligence database.
+# Created once with `wrangler d1 create aliasist-datasist`; the generated
+# database_id replaces the placeholder below. Migrations live in
+# ./migrations/*.sql and apply with `pnpm d1:migrate`.
+[[d1_databases]]
+binding       = "DATA_DB"
+database_name = "aliasist-datasist"
+database_id   = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
 # CORS allowlist (comma-separated). Override per environment.
 [vars]
 ALLOWED_ORIGIN = "http://localhost:5173,https://aliasist.tech,https://www.aliasist.tech"
@@ -25,6 +36,12 @@ AI_GROQ_MODEL = "llama-3.3-70b-versatile"
 [env.production]
 name = "aliasist-workers-api"
 workers_dev = true
+
+[[env.production.d1_databases]]
+binding       = "DATA_DB"
+database_name = "aliasist-datasist"
+database_id   = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
 
 [env.production.vars]
 ALLOWED_ORIGIN = "https://aliasist.tech,https://www.aliasist.tech"

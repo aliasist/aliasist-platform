@@ -34,6 +34,90 @@ export const AiExplainResponse = z.object({
 });
 export type AiExplainResponse = z.infer<typeof AiExplainResponse>;
 
+// --- DataSist ---
+
+export const DC_STATUSES = [
+  "operational",
+  "under_construction",
+  "planned",
+  "canceled",
+] as const;
+export const DC_COMPANY_TYPES = ["hyperscale", "colocation", "neocloud"] as const;
+export const DC_GRID_RISKS = ["low", "medium", "high"] as const;
+
+export const DataCenter = z.object({
+  id: z.number(),
+  slug: z.string(),
+  name: z.string(),
+  company: z.string(),
+  companyType: z.enum(DC_COMPANY_TYPES),
+  lat: z.number(),
+  lng: z.number(),
+  city: z.string(),
+  state: z.string(),
+  country: z.string(),
+  capacityMW: z.number().nullable(),
+  estimatedAnnualGWh: z.number().nullable(),
+  waterUsageMillionGallons: z.number().nullable(),
+  status: z.enum(DC_STATUSES),
+  yearOpened: z.number().nullable(),
+  yearPlanned: z.number().nullable(),
+  investmentBillions: z.number().nullable(),
+  acreage: z.number().nullable(),
+  primaryModels: z.array(z.string()),
+  communityImpact: z.string().nullable(),
+  communityResistance: z.boolean(),
+  gridRisk: z.enum(DC_GRID_RISKS).nullable(),
+  renewablePercent: z.number().nullable(),
+  notes: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type DataCenter = z.infer<typeof DataCenter>;
+
+export const DataCenterList = z.object({
+  items: z.array(DataCenter),
+  total: z.number(),
+  note: z.string().optional(),
+});
+export type DataCenterList = z.infer<typeof DataCenterList>;
+
+export const DataCenterStats = z.object({
+  totalFacilities: z.number(),
+  operational: z.number(),
+  underConstruction: z.number(),
+  planned: z.number(),
+  totalCapacityMW: z.number(),
+  totalEstimatedGWh: z.number(),
+  totalWaterMillionGallons: z.number(),
+  byCountry: z.array(z.object({ country: z.string(), count: z.number() })),
+  byCompanyType: z.array(
+    z.object({ companyType: z.string(), count: z.number() }),
+  ),
+  byGridRisk: z.array(z.object({ gridRisk: z.string(), count: z.number() })),
+  topCompanies: z.array(
+    z.object({
+      company: z.string(),
+      count: z.number(),
+      capacityMW: z.number(),
+    }),
+  ),
+});
+export type DataCenterStats = z.infer<typeof DataCenterStats>;
+
+export interface ListDataCentersFilters {
+  country?: string;
+  state?: string;
+  status?: (typeof DC_STATUSES)[number];
+  companyType?: (typeof DC_COMPANY_TYPES)[number];
+  gridRisk?: (typeof DC_GRID_RISKS)[number];
+  q?: string;
+  limit?: number;
+  offset?: number;
+}
+
+// --- Client ---
+
 export interface ClientOptions {
   baseUrl: string;
   fetchImpl?: typeof fetch;
@@ -51,6 +135,16 @@ export class AliasistApiError extends Error {
     this.name = "AliasistApiError";
   }
 }
+
+const buildQuery = (params: Record<string, unknown>): string => {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === "") continue;
+    q.set(k, String(v));
+  }
+  const s = q.toString();
+  return s ? `?${s}` : "";
+};
 
 export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
   const fx = fetchImpl ?? fetch;
@@ -86,12 +180,30 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
 
   return {
     health: () => request("/health", { method: "GET" }, HealthResponse),
+
     aiExplain: (body: AiExplainRequest) =>
       request(
         "/ai/explain",
         { method: "POST", body: JSON.stringify(AiExplainRequest.parse(body)) },
         AiExplainResponse,
       ),
+
+    listDataCenters: (filters: ListDataCentersFilters = {}) =>
+      request(
+        `/data/data-centers${buildQuery(filters as Record<string, unknown>)}`,
+        { method: "GET" },
+        DataCenterList,
+      ),
+
+    getDataCenter: (slug: string) =>
+      request(
+        `/data/data-centers/${encodeURIComponent(slug)}`,
+        { method: "GET" },
+        DataCenter,
+      ),
+
+    getDataCenterStats: () =>
+      request("/data/stats", { method: "GET" }, DataCenterStats),
   };
 };
 
