@@ -148,8 +148,12 @@ export const listDataCenters = async (
     binds.push(filters.gridRisk);
   }
   if (filters.q) {
-    where.push("(name LIKE ? OR company LIKE ? OR city LIKE ? OR state LIKE ?)");
-    const needle = `%${filters.q}%`;
+    // Escape LIKE wildcards so literal % and _ in user input match literally.
+    where.push(
+      "(name LIKE ? ESCAPE '\\' OR company LIKE ? ESCAPE '\\' OR city LIKE ? ESCAPE '\\' OR state LIKE ? ESCAPE '\\')",
+    );
+    const escaped = filters.q.replace(/[%_\\]/g, "\\$&");
+    const needle = `%${escaped}%`;
     binds.push(needle, needle, needle, needle);
   }
 
