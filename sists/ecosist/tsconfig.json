@@ -1,0 +1,4 @@
+{
+  "extends": "@aliasist/config/tsconfig.react.json",
+  "include": ["src"]
+}

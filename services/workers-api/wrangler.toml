@@ -1,0 +1,49 @@
+name = "aliasist-workers-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[observability]
+enabled = true
+
+# --- D1 bindings ---
+# DataSist curated data-center intelligence database.
+# Created once with `wrangler d1 create aliasist-datasist`; the generated
+# database_id replaces the placeholder below. Migrations live in
+# ./migrations/*.sql and apply with `pnpm d1:migrate`.
+[[d1_databases]]
+binding       = "DATA_DB"
+database_name = "aliasist-datasist"
+database_id   = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
+# CORS allowlist (comma-separated). Override per environment.
+[vars]
+ALLOWED_ORIGIN = "http://localhost:5173,https://aliasist.tech,https://www.aliasist.tech"
+AI_OLLAMA_MODEL = "llama3.1:8b"
+AI_GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Secrets (set with `wrangler secret put`):
+#   ADMIN_TOKEN       — required to hit privileged routes
+#   GROQ_API_KEY      — fallback AI provider
+#   AI_OLLAMA_URL     — e.g. https://ai.aliasist.tech (Cloudflare Tunnel to Azure)
+
+# --- production environment ---
+# Bound to api.aliasist.tech via a Worker Custom Domain (not a route).
+# Custom domain was provisioned via the CF API and is managed outside
+# wrangler to keep deploys idempotent without zone-level write scope.
+[env.production]
+name = "aliasist-workers-api"
+workers_dev = true
+
+[[env.production.d1_databases]]
+binding       = "DATA_DB"
+database_name = "aliasist-datasist"
+database_id   = "REPLACE_WITH_D1_ID"
+migrations_dir = "migrations"
+
+[env.production.vars]
+ALLOWED_ORIGIN = "https://aliasist.tech,https://www.aliasist.tech"
+AI_OLLAMA_MODEL = "llama3.1:8b"
+AI_GROQ_MODEL = "llama-3.3-70b-versatile"
