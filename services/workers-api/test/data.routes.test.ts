@@ -81,6 +81,20 @@ describe("POST /data/data-centers — happy path", () => {
     expect(Array.isArray(body.issues)).toBe(true);
   });
 
+  it("returns 400 invalid_slug when the derived slug would be empty", async () => {
+    const { request } = makeHarness();
+    const res = await request("/data/data-centers", {
+      ...jsonBody(validDataCenter({ company: "公", name: "数", city: "北" })),
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+    });
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe("invalid_slug");
+  });
+
   it("returns 409 on slug conflict", async () => {
     const { request } = makeHarness();
     const body = validDataCenter();

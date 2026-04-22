@@ -66,6 +66,18 @@ describe("createDataCenter", () => {
     });
     expect(created.slug).toBe("custom-slug-42");
   });
+
+  it("rejects pure non-ASCII input that would derive an empty slug", async () => {
+    const { env } = makeHarness();
+    await expect(
+      createDataCenter(env, {
+        ...validDataCenter(),
+        company: "公",
+        name: "数",
+        city: "北",
+      }),
+    ).rejects.toMatchObject({ code: "invalid_slug" });
+  });
 });
 
 describe("updateDataCenter", () => {
