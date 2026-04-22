@@ -1,22 +1,22 @@
-import type { EcoSignals } from "@aliasist/api-client";
+import type { EcoQuake, EcoSignals } from "@aliasist/api-client";
 import { kpBand, nf } from "../lib/format";
 
 interface StatStripProps {
   signals: EcoSignals | null;
+  /** Quake list the user is currently seeing on the map (respects minMag). */
+  quakes: EcoQuake[];
+  minMag: number;
   loading: boolean;
 }
 
-export const StatStrip = ({ signals, loading }: StatStripProps) => {
+export const StatStrip = ({ signals, quakes, minMag, loading }: StatStripProps) => {
   const alertCount = signals?.alerts.length ?? 0;
   const severe =
     signals?.alerts.filter(
       (a) => a.severity === "Extreme" || a.severity === "Severe",
     ).length ?? 0;
-  const quakeCount = signals?.earthquakes.length ?? 0;
-  const maxMag = signals?.earthquakes.reduce(
-    (m, q) => Math.max(m, q.magnitude),
-    0,
-  );
+  const quakeCount = quakes.length;
+  const maxMag = quakes.reduce((m, q) => Math.max(m, q.magnitude), 0);
   const eventCount = signals?.events.length ?? 0;
   const kp = signals?.spaceWeather?.kpIndex ?? null;
   const band = kpBand(kp);
@@ -29,10 +29,10 @@ export const StatStrip = ({ signals, loading }: StatStripProps) => {
       sub: `${severe} severe+`,
     },
     {
-      label: "Quakes (7d)",
+      label: `Quakes (M${minMag.toFixed(1)}+ · 7d)`,
       value: loading ? "…" : String(quakeCount),
-      accent: (maxMag ?? 0) >= 5 ? "#f97316" : "#22c55e",
-      sub: maxMag ? `max M${maxMag.toFixed(1)}` : "—",
+      accent: maxMag >= 5 ? "#f97316" : "#22c55e",
+      sub: maxMag > 0 ? `max M${maxMag.toFixed(1)}` : "—",
     },
     {
       label: "Natural events",

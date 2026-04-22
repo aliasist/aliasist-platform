@@ -130,7 +130,12 @@ export const EcoSistHome = () => {
         </div>
       </header>
 
-      <StatStrip signals={signals} loading={state.loading} />
+      <StatStrip
+        signals={signals}
+        quakes={filteredQuakes}
+        minMag={minMag}
+        loading={state.loading}
+      />
 
       {state.error ? (
         <Panel eyebrow="Error" title="Couldn't load signals">
