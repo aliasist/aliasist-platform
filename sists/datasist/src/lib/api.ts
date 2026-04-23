@@ -14,8 +14,8 @@ const resolveBaseUrl = (): string => {
   const fromEnv = (import.meta as unknown as { env?: Record<string, string> })
     .env?.VITE_API_BASE;
   if (fromEnv) return fromEnv.replace(/\/$/, "");
-  // Fallback: worker .workers.dev URL (used until api.aliasist.tech resolves).
-  return "https://aliasist-workers-api.bchooper0730.workers.dev";
+  // Fallback: Worker Custom Domain. Used when VITE_API_BASE is absent.
+  return "https://api.aliasist.tech";
 };
 
 export const DATASIST_ADMIN_TOKEN_KEY = "aliasist.datasist.admin-token";

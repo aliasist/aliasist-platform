@@ -35,7 +35,10 @@ AI_GROQ_MODEL = "llama-3.3-70b-versatile"
 # wrangler to keep deploys idempotent without zone-level write scope.
 [env.production]
 name = "aliasist-workers-api"
-workers_dev = true
+# Public entry point is api.aliasist.tech (Worker Custom Domain) once the
+# aliasist.tech zone redirect is cleared. Keep workers_dev = false in prod
+# so we don't leak a parallel .workers.dev URL.
+workers_dev = false
 
 [[env.production.d1_databases]]
 binding       = "DATA_DB"

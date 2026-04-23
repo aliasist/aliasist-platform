@@ -48,7 +48,10 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @aliasist/portal build
+      - name: build portal
+        env:
+          VITE_API_BASE: https://api.aliasist.tech
+        run: pnpm --filter @aliasist/portal build
       - name: wrangler pages deploy
         working-directory: services/workers-api
         env:
