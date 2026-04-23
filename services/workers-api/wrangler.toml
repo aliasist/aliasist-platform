@@ -15,7 +15,7 @@ enabled = true
 [[d1_databases]]
 binding       = "DATA_DB"
 database_name = "aliasist-datasist"
-database_id   = "REPLACE_WITH_D1_ID"
+database_id   = "e3090220-b2a4-4973-a832-97f0235370e0"
 migrations_dir = "migrations"
 
 # CORS allowlist (comma-separated). Override per environment.
@@ -40,7 +40,7 @@ workers_dev = true
 [[env.production.d1_databases]]
 binding       = "DATA_DB"
 database_name = "aliasist-datasist"
-database_id   = "REPLACE_WITH_D1_ID"
+database_id   = "e3090220-b2a4-4973-a832-97f0235370e0"
 migrations_dir = "migrations"
 
 [env.production.vars]
