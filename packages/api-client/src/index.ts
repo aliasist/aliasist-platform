@@ -160,6 +160,113 @@ export type AuditEntry = z.infer<typeof AuditEntry>;
 export const AuditList = z.object({ items: z.array(AuditEntry) });
 export type AuditList = z.infer<typeof AuditList>;
 
+// --- EcoSist ---
+
+export const EcoAlert = z.object({
+  id: z.string(),
+  event: z.string(),
+  severity: z.string().nullable(),
+  urgency: z.string().nullable(),
+  certainty: z.string().nullable(),
+  headline: z.string().nullable(),
+  areaDesc: z.string().nullable(),
+  sent: z.string().nullable(),
+  effective: z.string().nullable(),
+  expires: z.string().nullable(),
+  description: z.string().nullable(),
+  instruction: z.string().nullable(),
+  senderName: z.string().nullable(),
+  geometry: z.unknown(),
+});
+export type EcoAlert = z.infer<typeof EcoAlert>;
+
+export const EcoAlertList = z.object({
+  source: z.string(),
+  count: z.number(),
+  items: z.array(EcoAlert),
+});
+export type EcoAlertList = z.infer<typeof EcoAlertList>;
+
+export const EcoQuake = z.object({
+  id: z.string(),
+  magnitude: z.number(),
+  place: z.string().nullable(),
+  time: z.number().nullable(),
+  url: z.string().nullable(),
+  tsunami: z.boolean(),
+  status: z.string().nullable(),
+  lat: z.number(),
+  lng: z.number(),
+  depth: z.number().nullable(),
+  alert: z.string().nullable(),
+});
+export type EcoQuake = z.infer<typeof EcoQuake>;
+
+export const EcoQuakeList = z.object({
+  source: z.string(),
+  count: z.number(),
+  items: z.array(EcoQuake),
+});
+export type EcoQuakeList = z.infer<typeof EcoQuakeList>;
+
+export const EcoEvent = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  link: z.string().nullable(),
+  category: z.string().nullable(),
+  source: z.string().nullable(),
+  date: z.string().nullable(),
+  lat: z.number().nullable(),
+  lng: z.number().nullable(),
+});
+export type EcoEvent = z.infer<typeof EcoEvent>;
+
+export const EcoEventList = z.object({
+  source: z.string(),
+  count: z.number(),
+  items: z.array(EcoEvent),
+});
+export type EcoEventList = z.infer<typeof EcoEventList>;
+
+export const EcoSpaceWeather = z.object({
+  source: z.string(),
+  latest: z
+    .object({
+      time: z.string().nullable(),
+      kpIndex: z.number().nullable(),
+      aRunning: z.number().nullable(),
+      stationCount: z.number().nullable(),
+    })
+    .nullable(),
+  history: z.array(
+    z.object({
+      time: z.string().nullable(),
+      kpIndex: z.number().nullable(),
+      aRunning: z.number().nullable(),
+      stationCount: z.number().nullable(),
+    }),
+  ),
+});
+export type EcoSpaceWeather = z.infer<typeof EcoSpaceWeather>;
+
+export const EcoSignals = z.object({
+  alerts: z.array(EcoAlert),
+  earthquakes: z.array(EcoQuake),
+  events: z.array(EcoEvent),
+  spaceWeather: z
+    .object({ time: z.string().nullable(), kpIndex: z.number().nullable() })
+    .nullable(),
+  generatedAt: z.string(),
+});
+export type EcoSignals = z.infer<typeof EcoSignals>;
+
+export const EcoForecast = z.object({
+  source: z.string(),
+  data: z.record(z.string(), z.unknown()),
+});
+export type EcoForecast = z.infer<typeof EcoForecast>;
+
 // --- Client ---
 
 export interface ClientOptions {
@@ -278,6 +385,42 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
         { method: "GET" },
         AuditList,
       ),
+
+    // --- EcoSist ---
+
+    ecoForecast: (lat: number, lng: number) =>
+      request(
+        `/eco/forecast${buildQuery({ lat, lng })}`,
+        { method: "GET" },
+        EcoForecast,
+      ),
+
+    ecoAlerts: (opts: { area?: string; lat?: number; lng?: number } = {}) =>
+      request(
+        `/eco/alerts${buildQuery(opts as Record<string, unknown>)}`,
+        { method: "GET" },
+        EcoAlertList,
+      ),
+
+    ecoEarthquakes: (opts: { minMag?: number; days?: number } = {}) =>
+      request(
+        `/eco/earthquakes${buildQuery(opts as Record<string, unknown>)}`,
+        { method: "GET" },
+        EcoQuakeList,
+      ),
+
+    ecoEvents: (opts: { category?: string; days?: number } = {}) =>
+      request(
+        `/eco/events${buildQuery(opts as Record<string, unknown>)}`,
+        { method: "GET" },
+        EcoEventList,
+      ),
+
+    ecoSpaceWeather: () =>
+      request("/eco/space-weather", { method: "GET" }, EcoSpaceWeather),
+
+    ecoSignals: (area = "US") =>
+      request(`/eco/signals${buildQuery({ area })}`, { method: "GET" }, EcoSignals),
   };
 };
 

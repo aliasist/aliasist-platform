@@ -4,12 +4,13 @@ import { EcoSistRoutes } from "./routes";
 export const manifest: SistManifest = {
   id: "eco",
   name: "EcoSist",
-  tagline: "Severe weather lab — radar, alerts, storm reports, AI storm tutor.",
+  tagline:
+    "Earth signals — alerts, quakes, wildfires, volcanoes, and space weather on one map.",
   path: "/eco",
   element: EcoSistRoutes,
   accent: "signal",
-  icon: "⌁",
-  status: "alpha",
+  icon: "◈",
+  status: "live",
 };
 
 export { EcoSistRoutes } from "./routes";
