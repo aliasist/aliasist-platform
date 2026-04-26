@@ -93,6 +93,9 @@ importers:
       '@aliasist/config':
         specifier: workspace:*
         version: link:../config
+      '@types/node':
+        specifier: ^20.17.9
+        version: 20.19.39
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

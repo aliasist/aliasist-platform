@@ -28,6 +28,16 @@ export { cosineSimilarity } from "./similarity.js";
 export type { OllamaEmbeddings, OllamaEmbeddingsOptions } from "./embed/ollama.js";
 export { createOllamaEmbeddings } from "./embed/ollama.js";
 
+export type {
+  BuildRagIndexOptions,
+  QueryRagIndexOptions,
+  RagIndex,
+  RagIndexEntry,
+} from "./rag-index.js";
+export { RAG_INDEX_VERSION, buildRagIndex, queryRagIndex } from "./rag-index.js";
+
+export { loadRagIndex, saveRagIndex } from "./storage/json.js";
+
 export type { OpenAiProviderOptions } from "./providers/openai.js";
 export { createOpenAiProvider } from "./providers/openai.js";
 
