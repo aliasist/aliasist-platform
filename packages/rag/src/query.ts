@@ -1,4 +1,5 @@
 import type { TextChunk } from "./ingest.js";
+import { cosineSimilarity } from "./similarity.js";
 
 export interface RagProvider {
   name: string;
@@ -20,10 +21,30 @@ export interface RetrieveOptions {
   topK?: number;
 }
 
+export type RetrievalMode = "keyword" | "semantic";
+
+/**
+ * In-process embedder for semantic retrieval. Use `createOllamaEmbeddings()` from `embed/ollama.js` for Ollama.
+ */
+export interface ChunkEmbedder {
+  embedForChunks(
+    question: string,
+    chunkTexts: string[],
+  ): Promise<{ question: number[]; chunks: number[][] }>;
+}
+
 export interface AnswerQuestionOptions extends RetrieveOptions {
   provider: RagProvider;
   systemPrompt?: string;
   noContextMessage?: string;
+  /**
+   * `keyword` (default) uses token overlap. `semantic` uses cosine similarity of embeddings (no vector DB; in-memory only).
+   */
+  retrieval?: RetrievalMode;
+  /**
+   * Required when `retrieval` is `"semantic"`. Typically `createOllamaEmbeddings()`.
+   */
+  embeddings?: ChunkEmbedder;
 }
 
 export interface QueryResult {
@@ -87,6 +108,43 @@ export const retrieveChunks = (
     .slice(0, topK);
 };
 
+/**
+ * Ranks chunks by cosine similarity between the question embedding and each chunk embedding.
+ */
+export const retrieveChunksSemantic = async (
+  question: string,
+  chunks: TextChunk[],
+  embedder: ChunkEmbedder,
+  options: RetrieveOptions = {},
+): Promise<RetrievedChunk[]> => {
+  if (chunks.length === 0) return [];
+
+  const topK = Math.max(1, options.topK ?? 4);
+  const texts = chunks.map((c) => c.text);
+  const { question: qVec, chunks: chunkVecs } = await embedder.embedForChunks(question, texts);
+
+  if (qVec.length === 0) {
+    throw new Error("Semantic retrieval: question embedding is empty.");
+  }
+
+  const scored: RetrievedChunk[] = chunks.map((chunk, i) => {
+    const v = chunkVecs[i];
+    if (!v || v.length === 0) {
+      return { ...chunk, score: 0 };
+    }
+    if (v.length !== qVec.length) {
+      throw new Error(
+        `Semantic retrieval: dimension mismatch (question ${qVec.length} vs chunk ${v.length}).`,
+      );
+    }
+    return { ...chunk, score: cosineSimilarity(qVec, v) };
+  });
+
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, topK);
+};
+
 export const buildContext = (chunks: TextChunk[]): string =>
   chunks
     .map((chunk, index) => `[${index + 1}] ${chunk.source}\n${chunk.text}`)
@@ -97,7 +155,18 @@ export const query = async (
   chunks: TextChunk[],
   options: AnswerQuestionOptions,
 ): Promise<QueryResult> => {
-  const matches = retrieveChunks(question, chunks, options);
+  const mode = options.retrieval ?? "keyword";
+  let matches: RetrievedChunk[];
+  if (mode === "semantic") {
+    if (!options.embeddings) {
+      throw new Error(
+        'query: retrieval "semantic" requires `embeddings` (e.g. createOllamaEmbeddings()).',
+      );
+    }
+    matches = await retrieveChunksSemantic(question, chunks, options.embeddings, options);
+  } else {
+    matches = retrieveChunks(question, chunks, options);
+  }
 
   if (matches.length === 0) {
     return {

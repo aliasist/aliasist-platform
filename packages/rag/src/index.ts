@@ -7,13 +7,26 @@ export { chunkText, ingestDocuments } from "./ingest.js";
 export type {
   AnswerInput,
   AnswerQuestionOptions,
+  ChunkEmbedder,
   QueryResult,
   RagProvider,
   RetrievedChunk,
+  RetrievalMode,
   RetrieveOptions,
 } from "./query.js";
 
-export { answerQuestion, buildContext, query, retrieveChunks } from "./query.js";
+export {
+  answerQuestion,
+  buildContext,
+  query,
+  retrieveChunks,
+  retrieveChunksSemantic,
+} from "./query.js";
+
+export { cosineSimilarity } from "./similarity.js";
+
+export type { OllamaEmbeddings, OllamaEmbeddingsOptions } from "./embed/ollama.js";
+export { createOllamaEmbeddings } from "./embed/ollama.js";
 
 export type { OpenAiProviderOptions } from "./providers/openai.js";
 export { createOpenAiProvider } from "./providers/openai.js";
