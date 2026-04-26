@@ -26,6 +26,9 @@ importers:
       '@aliasist/sist-eco':
         specifier: workspace:*
         version: link:../../sists/ecosist
+      '@aliasist/sist-space':
+        specifier: workspace:*
+        version: link:../../sists/spacesist
       '@aliasist/ui':
         specifier: workspace:*
         version: link:../../packages/ui

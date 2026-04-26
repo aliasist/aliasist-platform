@@ -1,6 +1,7 @@
 import type { SistManifest } from "@aliasist/ui";
 import { manifest as dataManifest } from "@aliasist/sist-data";
 import { manifest as ecoManifest } from "@aliasist/sist-eco";
+import { manifest as spaceManifest } from "@aliasist/sist-space";
 
 /**
  * Static registry of active sists. Each sist ships its own manifest so the
@@ -11,6 +12,7 @@ import { manifest as ecoManifest } from "@aliasist/sist-eco";
 export const sists: SistManifest[] = [
   dataManifest,
   ecoManifest,
+  spaceManifest,
   {
     id: "pulse",
     name: "PulseSist",
@@ -19,16 +21,6 @@ export const sists: SistManifest[] = [
     element: () => null,
     accent: "ufo",
     icon: "▲",
-    status: "coming-soon",
-  },
-  {
-    id: "space",
-    name: "SpaceSist",
-    tagline: "NASA-themed missions, imagery, and space data.",
-    path: "/space",
-    element: () => null,
-    accent: "ink",
-    icon: "☄",
     status: "coming-soon",
   },
   {
