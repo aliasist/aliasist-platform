@@ -4,7 +4,7 @@ import { SpaceSistRoutes } from "./routes";
 export const manifest: SistManifest = {
   id: "space",
   name: "SpaceSist",
-  tagline: "NASA-themed missions, imagery, and space data.",
+  tagline: "Project memory—spaces, notes, RAG context, and ask-the-workspace (human-facing).",
   path: "/space",
   element: SpaceSistRoutes,
   accent: "ink",
