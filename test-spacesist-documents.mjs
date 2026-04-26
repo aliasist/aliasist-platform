@@ -1,6 +1,8 @@
 /**
  * Phase 4A — dry-run: mock SpaceSist data → RAG-friendly documents (print only).
- * No Ollama, no OpenAI, no live HTTP, no embeddings.
+ * No Ollama, no OpenAI, no live HTTP, no embeddings, no @aliasist/rag `buildRagIndex`.
+ * The `tsx` devDependency is only a TypeScript loader for Node — it does not start Ollama
+ * and does not call /api/embed or any model providers.
  *
  * `node` cannot load `.ts` directly; the block below re-invokes with `tsx` so this works:
  *   node test-spacesist-documents.mjs
@@ -54,7 +56,8 @@ const expectations = [
     source: "spacesist/iss-location",
     feed: "iss",
     kind: "orbit",
-    pattern: /International Space Station|ISS|latitude|longitude|altitude|Where The ISS/i,
+    pattern:
+      /International Space Station|ISS|latitude|longitude|WGS-84|decimal degrees|altitude|Where The ISS/i,
   },
   {
     source: "spacesist/people-in-space",

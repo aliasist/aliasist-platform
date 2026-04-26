@@ -37,7 +37,8 @@ function formatIss(iss: IssSnapshot): string {
     iss.dayNight === "day" ? "day side" : iss.dayNight === "night" ? "night side" : "terminator / mixed";
   return [
     "SpaceSist feed: International Space Station (ISS) orbital state (normalized).",
-    `Subsatellite latitude (WGS-84): ${fmtLat(iss.latitude)}; longitude: ${fmtLon(iss.longitude)}.`,
+    `Geodetic fix (WGS-84, decimal degrees): latitude ${iss.latitude}, longitude ${iss.longitude} (signed values; east positive, west negative).`,
+    `Subsatellite point (DMS-style): ${fmtLat(iss.latitude)}; ${fmtLon(iss.longitude)}.`,
     `Approximate altitude: ${iss.altitudeKm} km; approximate speed: ${iss.velocityKmh.toLocaleString()} km/h.`,
     `Illumination proxy (dashboard): ${illum}.`,
     "Source: Where The ISS or equivalent position API — data ingested for retrieval, not flight planning.",
