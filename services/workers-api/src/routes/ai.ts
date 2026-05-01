@@ -4,7 +4,7 @@ import type { Env } from "../env";
 
 export const ai = new Hono<{ Bindings: Env }>();
 
-const SIST_IDS = ["data", "eco", "pulse", "space", "tika"] as const;
+const SIST_IDS = ["data", "eco", "pulse", "space"] as const;
 type SistId = (typeof SIST_IDS)[number];
 
 const ExplainBody = z.object({

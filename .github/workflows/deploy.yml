@@ -22,9 +22,11 @@ jobs:
           version: 9.15.1
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # @aliasist/rag publishes only dist/; wrangler cannot bundle the worker without it.
+      - run: pnpm --filter @aliasist/rag build
       - name: wrangler deploy
         working-directory: services/workers-api
         env:
@@ -45,7 +47,7 @@ jobs:
           version: 9.15.1
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: build portal

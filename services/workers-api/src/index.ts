@@ -4,6 +4,7 @@ import { health } from "./routes/health";
 import { eco } from "./routes/eco";
 import { data } from "./routes/data";
 import { ai } from "./routes/ai";
+import { space } from "./routes/space";
 import type { Env } from "./env";
 
 const app = new Hono<{ Bindings: Env }>();
@@ -14,6 +15,7 @@ app.route("/health", health);
 app.route("/eco", eco);
 app.route("/data", data);
 app.route("/ai", ai);
+app.route("/space", space);
 
 app.notFound((c) =>
   c.json({ error: "not_found", path: new URL(c.req.url).pathname }, 404),

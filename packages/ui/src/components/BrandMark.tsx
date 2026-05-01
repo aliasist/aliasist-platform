@@ -12,14 +12,14 @@ export interface BrandMarkProps {
  * Colors adapt to currentColor for flexibility; beam uses ufo-500.
  */
 export const BrandMark = ({ className, size = 28, wordmark = true }: BrandMarkProps) => (
-  <div className={cn("inline-flex items-center gap-2.5", className)}>
+  <div className={cn("group inline-flex items-center gap-2.5", className)}>
     <svg
       width={size}
       height={size}
       viewBox="0 0 32 32"
       fill="none"
       aria-label="Aliasist"
-      className="shrink-0"
+      className="shrink-0 motion-safe:drop-shadow-[0_0_10px_rgba(12,207,114,0.35)] motion-safe:transition-transform motion-safe:duration-350 motion-safe:ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
     >
       {/* dome */}
       <path

@@ -5,6 +5,10 @@
   --aliasist-radius: 14px;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body,
 #root {
@@ -26,4 +30,10 @@ body {
 ::selection {
   background: rgba(11, 207, 114, 0.25);
   color: #f3f5f9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
