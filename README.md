@@ -6,8 +6,6 @@
 
 **Product thesis:** Aliasist is a multi-domain intelligence hub. Each sist is a focused lens on a fast-changing system: infrastructure (`DataSist`), space (`SpaceSist`), markets (`PulseSist`), and weather / disaster / economic impact (`EcoSist`).
 
-For **AI, agents, and backend** goals (trust boundary, models, RAG, phased delivery), see [`docs/MISSION_AI_BACKEND.md`](docs/MISSION_AI_BACKEND.md) and [`docs/PHASE_PLAN_AI_BACKEND.md`](docs/PHASE_PLAN_AI_BACKEND.md).
-
 ## Architecture at a glance
 
 ```

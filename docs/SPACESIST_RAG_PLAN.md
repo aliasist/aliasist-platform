@@ -2,8 +2,6 @@
 
 This document breaks **`integrate/spacesist-rag`** (and follow-up work) into phases with **exit criteria**. For day-to-day notes, append to **`INTEGRATION_LOG.md`** (newest entries at the top).
 
-Cross-cutting **AI gateway / backend** sequencing (traceability, `/ai/explain` parity, agent readiness) lives in **[`PHASE_PLAN_AI_BACKEND.md`](PHASE_PLAN_AI_BACKEND.md)** alongside **[`MISSION_AI_BACKEND.md`](MISSION_AI_BACKEND.md)**.
-
 For the longer-term flagship roadmap after this integration branch, see **`SPACESIST_PREMIUM_PHASES.md`**.
 
 ## Current shape (reference)
