@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Routes, Route, useLocation, useNavigate, Link } from "react-router-dom";
 import {
   BrandMark,
@@ -14,6 +14,7 @@ import {
 import { Home } from "./pages/Home";
 import { About } from "./pages/About";
 import { NotFound } from "./pages/NotFound";
+import { SistRouteFallback } from "./SistRouteFallback";
 import { sists } from "./sists";
 
 type EnvLane = "prod" | "staging" | "playground";
@@ -136,23 +137,25 @@ export const App = () => {
         </div>
       }
     >
-      <Routes>
-        <Route path="/" element={<Home sists={sists} onNavigate={navigate} theme={theme} />} />
-        <Route path="/about" element={<About />} />
-        {sists.map((s) => {
-          const Element = s.element;
-          return s.status === "coming-soon" ? (
-            <Route
-              key={s.id}
-              path={`${s.path}/*`}
-              element={<ComingSoon name={s.name} />}
-            />
-          ) : (
-            <Route key={s.id} path={`${s.path}/*`} element={<Element />} />
-          );
-        })}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<SistRouteFallback />}>
+        <Routes>
+          <Route path="/" element={<Home sists={sists} onNavigate={navigate} theme={theme} />} />
+          <Route path="/about" element={<About />} />
+          {sists.map((s) => {
+            const Element = s.element;
+            return s.status === "coming-soon" ? (
+              <Route
+                key={s.id}
+                path={`${s.path}/*`}
+                element={<ComingSoon name={s.name} />}
+              />
+            ) : (
+              <Route key={s.id} path={`${s.path}/*`} element={<Element />} />
+            );
+          })}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </Shell>
   );
 };

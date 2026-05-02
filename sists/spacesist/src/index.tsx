@@ -1,15 +1,10 @@
 import type { SistManifest } from "@aliasist/ui";
+import { manifestMeta } from "./manifest-meta";
 import { SpaceSistRoutes } from "./routes";
 
 export const manifest: SistManifest = {
-  id: "space",
-  name: "SpaceSist",
-  tagline: "Space intelligence: ISS tracking, NASA imagery, SpaceX launches, and astronomy context.",
-  path: "/space",
+  ...manifestMeta,
   element: SpaceSistRoutes,
-  accent: "ink",
-  icon: "☄",
-  status: "alpha",
 };
 
 export { SpaceSistRoutes } from "./routes";

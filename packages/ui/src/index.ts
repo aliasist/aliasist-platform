@@ -16,4 +16,4 @@ export {
   type ThemeId,
   writeStoredTheme,
 } from "./theme";
-export type { SistManifest } from "./types";
+export type { SistManifest, SistManifestMeta, SistRouteElement } from "./types";

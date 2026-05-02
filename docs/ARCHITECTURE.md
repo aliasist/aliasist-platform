@@ -40,7 +40,7 @@ The product is strongest when each sist answers three questions:
 
 The prompt called for "one portal with an app switcher" *and* `apps/ecosist`, `apps/pulsesist`. Those mean different things. We picked:
 
-**One deployed SPA (`apps/portal`).** Each sist is a library under `sists/<id>/` that exports its routes + manifest (`SistManifest`). The portal lazy-loads each sist at `/data`, `/eco`, `/pulse`, etc.
+**One deployed SPA (`apps/portal`).** Each sist is a library under `sists/<id>/` that exports its routes + manifest (`SistManifest`). The portal lazy-loads each sist’s route module at `/data`, `/eco`, `/space`, etc., while manifest metadata (`manifest-meta` subpath) stays eager for nav and the app switcher.
 
 Pros:
 - Shared shell, header, analytics, auth, session — no duplication.
@@ -56,23 +56,23 @@ Escape hatch: if one sist grows its own audience/team/stack, lift it out to `app
 
 ## Sist manifest contract
 
-Every sist exports:
+Each sist ships **`src/manifest-meta.ts`** (exported as `@aliasist/sist-*/manifest-meta`) with nav fields only — no route imports — so the portal can stay slim. The package root still exports a full **`manifest`** (meta + `element`) for consumers that load the whole module.
+
+The portal **`apps/portal/src/sists.ts`** merges meta with `React.lazy(() => import("@aliasist/sist-*").then(...))` and wraps routes in **`Suspense`**. `AppSwitcher` reads the combined list. React Router mounts each lazy `element` at `path/*`.
 
 ```ts
-import type { SistManifest } from "@aliasist/ui";
-export const manifest: SistManifest = {
+// manifest-meta.ts — safe to import eagerly from the portal
+import type { SistManifestMeta } from "@aliasist/ui";
+export const manifestMeta: SistManifestMeta = {
   id: "data",
   name: "DataSist",
   tagline: "AI data center intelligence — live map, curated entries.",
   path: "/data",
-  element: DataSistRoutes,
   accent: "ufo",
   icon: "◎",
   status: "alpha",
 };
 ```
-
-`apps/portal/src/sists.ts` imports and orders these. `AppSwitcher` renders them. React Router mounts `element` at `path/*`.
 
 ## API gateway shape
 
