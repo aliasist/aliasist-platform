@@ -312,6 +312,31 @@ export const DataCenterStats = z.object({
 });
 export type DataCenterStats = z.infer<typeof DataCenterStats>;
 
+export const DataCenterOverview = z.object({
+  generatedAt: z.string(),
+  dataset: z.object({
+    totalFacilities: z.number(),
+    totalCapacityMW: z.number(),
+    newestUpdatedAt: z.string().nullable(),
+    oldestUpdatedAt: z.string().nullable(),
+  }),
+  freshness: z.object({
+    freshCount: z.number(),
+    agingCount: z.number(),
+    staleCount: z.number(),
+    freshWindowHours: z.number(),
+    staleWindowHours: z.number(),
+  }),
+  provenance: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      reliability: z.enum(["high", "medium", "low"]),
+    }),
+  ),
+});
+export type DataCenterOverview = z.infer<typeof DataCenterOverview>;
+
 export interface ListDataCentersFilters {
   country?: string;
   state?: string;
@@ -608,6 +633,9 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
 
     getDataCenterStats: () =>
       request("/data/stats", { method: "GET" }, DataCenterStats),
+
+    getDataCenterOverview: () =>
+      request("/data/overview", { method: "GET" }, DataCenterOverview),
 
     // --- admin (requires bearer token) ---
 

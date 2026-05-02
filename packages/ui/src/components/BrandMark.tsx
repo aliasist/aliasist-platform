@@ -1,4 +1,6 @@
+/// <reference path="../svg.d.ts" />
 import { cn } from "../lib/cn";
+import logoBrand from "../assets/aliasist-logo-brand.svg";
 
 export interface BrandMarkProps {
   className?: string;
@@ -13,38 +15,18 @@ export interface BrandMarkProps {
  */
 export const BrandMark = ({ className, size = 28, wordmark = true }: BrandMarkProps) => (
   <div className={cn("group inline-flex items-center gap-2.5", className)}>
-    <svg
+    <img
+      src={logoBrand}
+      alt="Aliasist"
       width={size}
       height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      aria-label="Aliasist"
-      className="shrink-0 motion-safe:drop-shadow-[0_0_10px_rgba(12,207,114,0.35)] motion-safe:transition-transform motion-safe:duration-350 motion-safe:ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
-    >
-      {/* dome */}
-      <path
-        d="M10 13c0-3.3 2.7-6 6-6s6 2.7 6 6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      {/* saucer */}
-      <ellipse cx="16" cy="15" rx="12" ry="3" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" />
-      {/* tractor beam */}
-      <path
-        d="M12 18l-2 8h12l-2-8"
-        stroke="#0bcf72"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="#0bcf72"
-        fillOpacity="0.12"
-      />
-      {/* dome light */}
-      <circle cx="16" cy="11" r="1" fill="#0bcf72" />
-    </svg>
+      className="shrink-0 rounded-sm object-contain motion-safe:transition-transform motion-safe:duration-350 motion-safe:ease-out group-hover:scale-[1.04] motion-reduce:transition-none"
+      style={{
+        filter: "drop-shadow(0 0 10px rgba(11, 207, 114, 0.25))",
+      }}
+    />
     {wordmark && (
-      <span className="font-display text-[15px] font-semibold tracking-tight text-ink-50">
+      <span className="font-display text-[15px] font-semibold tracking-tight" style={{ color: "var(--aliasist-text)" }}>
         Aliasist
       </span>
     )}

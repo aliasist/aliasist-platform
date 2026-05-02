@@ -237,3 +237,37 @@ describe("GET /data/data-centers — public + LIKE-escape regression", () => {
     expect(typeof body.note).toBe("string");
   });
 });
+
+describe("GET /data/overview", () => {
+  it("returns freshness windows and provenance metadata", async () => {
+    const { request } = makeHarness();
+    const headers = { "Content-Type": "application/json", ...authHeader() };
+    await request("/data/data-centers", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(validDataCenter({ slug: "overview-a" })),
+    });
+    await request("/data/data-centers", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(validDataCenter({ slug: "overview-b", name: "B Site" })),
+    });
+
+    const res = await request("/data/overview");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      generatedAt: string;
+      dataset: { totalFacilities: number; totalCapacityMW: number };
+      freshness: { freshCount: number; agingCount: number; staleCount: number };
+      provenance: { id: string; reliability: string }[];
+    };
+    expect(typeof body.generatedAt).toBe("string");
+    expect(body.dataset.totalFacilities).toBeGreaterThanOrEqual(2);
+    expect(body.dataset.totalCapacityMW).toBeGreaterThan(0);
+    expect(body.freshness.freshCount).toBeGreaterThanOrEqual(2);
+    expect(body.freshness.agingCount).toBeGreaterThanOrEqual(0);
+    expect(body.freshness.staleCount).toBeGreaterThanOrEqual(0);
+    expect(body.provenance.length).toBeGreaterThanOrEqual(3);
+    expect(body.provenance[0]?.id).toBeTruthy();
+  });
+});
