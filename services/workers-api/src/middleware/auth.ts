@@ -1,5 +1,5 @@
 import { createMiddleware } from "hono/factory";
-import type { Env } from "../env";
+import type { AliasistHonoEnv } from "../hono-env";
 
 const encoder = new TextEncoder();
 
@@ -32,7 +32,7 @@ const constantTimeEquals = async (a: string, b: string): Promise<boolean> => {
 };
 
 /** Requires a bearer token matching env.ADMIN_TOKEN. Fails closed. */
-export const requireAdmin = createMiddleware<{ Bindings: Env }>(async (c, next) => {
+export const requireAdmin = createMiddleware<AliasistHonoEnv>(async (c, next) => {
   const expected = c.env.ADMIN_TOKEN;
   if (!expected) return c.json({ error: "not_configured" }, 503);
   const header = c.req.header("Authorization") ?? "";

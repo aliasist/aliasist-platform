@@ -1,5 +1,5 @@
 import { createMiddleware } from "hono/factory";
-import type { Env } from "../env";
+import type { AliasistHonoEnv } from "../hono-env";
 
 type Bucket = { windowStart: number; count: number };
 
@@ -17,7 +17,7 @@ const clientKey = (c: { req: { header: (name: string) => string | undefined } })
   c.req.header("X-Forwarded-For")?.split(",")[0]?.trim() ??
   "unknown";
 
-export const spaceAskRateLimit = createMiddleware<{ Bindings: Env }>(async (c, next) => {
+export const spaceAskRateLimit = createMiddleware<AliasistHonoEnv>(async (c, next) => {
   const windowMsRaw = Number(c.env.SPACE_ASK_RATE_WINDOW_MS ?? 60_000);
   const windowMs = Number.isFinite(windowMsRaw) ? Math.max(10_000, Math.min(600_000, windowMsRaw)) : 60_000;
   const maxRaw = Number(c.env.SPACE_ASK_RATE_MAX ?? 24);

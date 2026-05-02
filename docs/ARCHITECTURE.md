@@ -7,6 +7,8 @@
 3. **Educational mission.** Every sist teaches the system it visualizes. AI explainers are grounded in the data visible on the page and are safety-first.
 4. **Easy to grow.** Adding a sist is a one-line manifest registration; adding an API surface is a one-line `app.route()` call.
 
+Backend / AI / agent goals for the Worker are stated in **[`MISSION_AI_BACKEND.md`](MISSION_AI_BACKEND.md)** and phased in **[`PHASE_PLAN_AI_BACKEND.md`](PHASE_PLAN_AI_BACKEND.md)**.
+
 ## Product statement
 
 Aliasist is a multi-domain intelligence hub. It helps users understand fast-changing systems by combining live data, curated context, and grounded explanations in one interface.

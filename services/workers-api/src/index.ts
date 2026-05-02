@@ -5,10 +5,12 @@ import { eco } from "./routes/eco";
 import { data } from "./routes/data";
 import { ai } from "./routes/ai";
 import { space } from "./routes/space";
-import type { Env } from "./env";
+import type { AliasistHonoEnv } from "./hono-env";
+import { requestIdMiddleware } from "./middleware/request-id";
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<AliasistHonoEnv>();
 
+app.use("*", requestIdMiddleware);
 app.use("*", corsMiddleware);
 
 app.route("/health", health);

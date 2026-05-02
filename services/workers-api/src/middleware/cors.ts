@@ -1,5 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import type { Env } from "../env";
+import type { AliasistHonoEnv } from "../hono-env";
 
 const allowPagesPreview = (origin: string, env: Env): boolean => {
   if (env.CORS_ALLOW_CF_PAGES !== "true" || !origin) return false;
@@ -16,7 +17,7 @@ const allowPagesPreview = (origin: string, env: Env): boolean => {
  * ALLOWED_ORIGIN (comma-separated), or when CORS_ALLOW_CF_PAGES enables
  * `https://*.pages.dev` for Cloudflare Pages preview URLs.
  */
-export const corsMiddleware = createMiddleware<{ Bindings: Env }>(async (c, next) => {
+export const corsMiddleware = createMiddleware<AliasistHonoEnv>(async (c, next) => {
   const origin = c.req.header("Origin") ?? "";
   const allowed = (c.env.ALLOWED_ORIGIN ?? "")
     .split(",")
