@@ -1,16 +1,10 @@
 import type { SistManifest } from "@aliasist/ui";
+import { manifestMeta } from "./manifest-meta";
 import { EcoSistRoutes } from "./routes";
 
 export const manifest: SistManifest = {
-  id: "eco",
-  name: "EcoSist",
-  tagline:
-    "Earth signals — alerts, quakes, wildfires, volcanoes, and space weather on one map.",
-  path: "/eco",
+  ...manifestMeta,
   element: EcoSistRoutes,
-  accent: "signal",
-  icon: "◈",
-  status: "live",
 };
 
 export { EcoSistRoutes } from "./routes";

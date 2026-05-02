@@ -5,4 +5,15 @@ export { Pill } from "./components/Pill";
 export { Shell } from "./components/Shell";
 export { BrandMark } from "./components/BrandMark";
 export { AppSwitcher } from "./components/AppSwitcher";
-export type { SistManifest } from "./types";
+export { ThemePicker } from "./components/ThemePicker";
+export {
+  applyTheme,
+  readStoredTheme,
+  resolveThemeId,
+  THEME_IDS,
+  THEME_STORAGE_KEY,
+  THEMES,
+  type ThemeId,
+  writeStoredTheme,
+} from "./theme";
+export type { SistManifest, SistManifestMeta, SistRouteElement } from "./types";

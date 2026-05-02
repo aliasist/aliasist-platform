@@ -15,6 +15,7 @@ import { AdminTokenPill } from "../components/AdminTokenPill";
 import {
   companyTypeLabel,
   formatMW,
+  nf,
   STATUS_LABEL,
   STATUS_TONE,
 } from "../lib/format";
@@ -31,6 +32,7 @@ export const DataSistHome = () => {
   const [filteredCenters, setFilteredCenters] = useState<DataCenter[]>([]);
   const [stats, setStats] = useState<DataCenterStats | null>(null);
   const [selected, setSelected] = useState<DataCenter | null>(null);
+  const [brief, setBrief] = useState<BriefState>({ status: "idle" });
   const [state, setState] = useState<LoadState>({
     loading: true,
     error: null,
@@ -93,6 +95,70 @@ export const DataSistHome = () => {
     return [...set].sort();
   }, [allCenters]);
 
+  const insights = useMemo(() => {
+    const topCountry = stats?.byCountry[0] ?? null;
+    const topCompany = stats?.topCompanies[0] ?? null;
+    const lowRisk = stats?.byGridRisk.find((entry) => entry.gridRisk === "low")?.count ?? 0;
+    const mediumRisk = stats?.byGridRisk.find((entry) => entry.gridRisk === "medium")?.count ?? 0;
+    const highRisk = stats?.byGridRisk.find((entry) => entry.gridRisk === "high")?.count ?? 0;
+    const resistanceCount = allCenters.filter((dc) => dc.communityResistance).length;
+    const modelCounts = new Map<string, number>();
+    for (const dc of allCenters) {
+      for (const model of dc.primaryModels) {
+        modelCounts.set(model, (modelCounts.get(model) ?? 0) + 1);
+      }
+    }
+    const topModel = [...modelCounts.entries()].sort((a, b) => b[1] - a[1])[0] ?? null;
+    return {
+      topCountry,
+      topCompany,
+      lowRisk,
+      mediumRisk,
+      highRisk,
+      resistanceCount,
+      topModel,
+      filteredCount: filteredCenters.length,
+    };
+  }, [allCenters, filteredCenters.length, stats]);
+
+  const askForBrief = async () => {
+    if (!stats) return;
+    setBrief({ status: "loading" });
+    try {
+      const res = await api().aiExplain({
+        sist: "data",
+        question:
+          "In 3-4 sentences, summarize the most important patterns in this data center dataset. Mention scale, dominant geography or operator concentration, and any notable risk or community signals. Keep it grounded in the provided context only.",
+        context: {
+          totalFacilities: stats.totalFacilities,
+          totalCapacityMW: stats.totalCapacityMW,
+          totalEstimatedGWh: stats.totalEstimatedGWh,
+          totalWaterMillionGallons: stats.totalWaterMillionGallons,
+          topCompany: stats.topCompanies[0] ?? null,
+          topCountry: stats.byCountry[0] ?? null,
+          byGridRisk: stats.byGridRisk,
+          resistanceCount: insights.resistanceCount,
+          filteredCount: filteredCenters.length,
+        },
+      });
+      if (res.source === "fallback") {
+        setBrief({ status: "unavailable", text: res.answer });
+      } else {
+        setBrief({
+          status: "ok",
+          text: res.answer,
+          source: res.source,
+          latencyMs: res.latencyMs,
+        });
+      }
+    } catch (err) {
+      setBrief({
+        status: "error",
+        message: err instanceof Error ? err.message : "AI request failed",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-baseline justify-between gap-4">
@@ -122,6 +188,112 @@ export const DataSistHome = () => {
       </header>
 
       <StatsStrip stats={stats} loading={state.loading} />
+
+      <section className="grid gap-4 lg:grid-cols-[1.06fr_0.94fr]">
+        <Panel
+          eyebrow="Intelligence"
+          title="What stands out right now"
+          className="motion-safe:animate-fade-up motion-safe:opacity-0 motion-reduce:opacity-100 motion-reduce:animate-none"
+          style={{ animationDelay: "80ms" }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <MiniInsight
+              label="Scale"
+              value={
+                stats
+                  ? `${formatMW(stats.totalCapacityMW)} across ${nf(stats.totalFacilities)} sites`
+                  : state.loading
+                    ? "Loading…"
+                    : "—"
+              }
+              sub="Announced + operational footprint"
+            />
+            <MiniInsight
+              label="Leader"
+              value={
+                insights.topCompany
+                  ? `${insights.topCompany.company} · ${formatMW(insights.topCompany.capacityMW)}`
+                  : "—"
+              }
+              sub="Largest operator by tracked capacity"
+            />
+            <MiniInsight
+              label="Hot spot"
+              value={
+                insights.topCountry
+                  ? `${insights.topCountry.country} · ${nf(insights.topCountry.count)} sites`
+                  : "—"
+              }
+              sub="Most concentrated geography"
+            />
+            <MiniInsight
+              label="Signals"
+              value={
+                stats
+                  ? `${nf(insights.highRisk)} high-risk · ${nf(insights.resistanceCount)} resistance`
+                  : "—"
+              }
+              sub="Grid tension and community friction"
+            />
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <MiniMetric label="Low risk" value={nf(insights.lowRisk)} />
+            <MiniMetric label="Medium risk" value={nf(insights.mediumRisk)} />
+            <MiniMetric label="Filtered scope" value={nf(insights.filteredCount)} />
+          </div>
+          {insights.topModel ? (
+            <div className="mt-4 rounded-lg border border-ink-800 bg-ink-950/30 px-3 py-2 text-xs text-ink-300">
+              Most common workload:{" "}
+              <span className="font-medium text-ink-100">
+                {insights.topModel[0]}
+              </span>{" "}
+              ({nf(insights.topModel[1])} sites)
+            </div>
+          ) : null}
+        </Panel>
+
+        <Panel
+          eyebrow="AI briefing"
+          title="Generate a grounded summary"
+          className="motion-safe:animate-fade-up motion-safe:opacity-0 motion-reduce:opacity-100 motion-reduce:animate-none"
+          style={{ animationDelay: "120ms" }}
+        >
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-ink-300">
+              Ask the worker for a short operational readout over the current
+              dataset. The brief uses the tracked data only and keeps the
+              explanation grounded in the visible inventory.
+            </p>
+            <button
+              onClick={() => void askForBrief()}
+              disabled={!stats || brief.status === "loading"}
+              className="inline-flex items-center gap-2 rounded-md bg-ufo-500 px-4 py-2 text-sm font-medium text-ink-950 transition hover:bg-ufo-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {brief.status === "loading" ? "Briefing…" : "Generate brief"}
+            </button>
+            {brief.status === "ok" && brief.text ? (
+              <div className="rounded-lg border border-ufo-700/40 bg-ufo-900/10 p-4">
+                <p className="whitespace-pre-wrap text-sm leading-7 text-ink-100">
+                  {brief.text}
+                </p>
+                <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-500">
+                  {brief.source} · {brief.latencyMs}ms
+                </div>
+              </div>
+            ) : null}
+            {brief.status === "unavailable" ? (
+              <p className="text-xs text-ink-400">
+                AI is offline right now. {brief.text ? `(“${brief.text}”)` : ""}
+              </p>
+            ) : null}
+            {brief.status === "error" ? (
+              <p className="text-xs text-red-300">
+                Error: {brief.message}
+              </p>
+            ) : null}
+          </div>
+        </Panel>
+      </section>
 
       {state.error ? (
         <Panel eyebrow="Error" title="Couldn't load data centers">
@@ -172,6 +344,41 @@ export const DataSistHome = () => {
     </div>
   );
 };
+
+interface BriefState {
+  status: "idle" | "loading" | "ok" | "error" | "unavailable";
+  text?: string;
+  source?: string;
+  latencyMs?: number;
+  message?: string;
+}
+
+const MiniInsight = ({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+}) => (
+  <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-3 transition-colors duration-250 hover:border-ufo-400/25 hover:bg-white/[0.05]">
+    <div className="text-[10px] uppercase tracking-[0.14em] text-ink-400">
+      {label}
+    </div>
+    <div className="mt-1.5 text-sm font-medium leading-6 text-ink-50">{value}</div>
+    <div className="mt-1 text-[11px] text-ink-400">{sub}</div>
+  </div>
+);
+
+const MiniMetric = ({ label, value }: { label: string; value: string }) => (
+  <div className="rounded-lg border border-ink-800 bg-ink-950/30 px-3 py-2">
+    <div className="text-[10px] uppercase tracking-[0.14em] text-ink-400">
+      {label}
+    </div>
+    <div className="mt-1 font-mono text-sm text-ink-100">{value}</div>
+  </div>
+);
 
 interface EntryListProps {
   centers: DataCenter[];

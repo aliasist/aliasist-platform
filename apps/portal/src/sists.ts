@@ -1,44 +1,38 @@
+import { lazy, type ComponentType } from "react";
 import type { SistManifest } from "@aliasist/ui";
-import { manifest as dataManifest } from "@aliasist/sist-data";
-import { manifest as ecoManifest } from "@aliasist/sist-eco";
+import { manifestMeta as dataMeta } from "@aliasist/sist-data/manifest-meta";
+import { manifestMeta as ecoMeta } from "@aliasist/sist-eco/manifest-meta";
+import { manifestMeta as spaceMeta } from "@aliasist/sist-space/manifest-meta";
+
+const lazyData = lazy(() =>
+  import("@aliasist/sist-data").then((m) => ({ default: m.DataSistRoutes })),
+);
+const lazyEco = lazy(() =>
+  import("@aliasist/sist-eco").then((m) => ({ default: m.EcoSistRoutes })),
+);
+const lazySpace = lazy(() =>
+  import("@aliasist/sist-space").then((m) => ({ default: m.SpaceSistRoutes })),
+);
+
+/** Unused for `coming-soon` routes; satisfies `SistManifest.element`. */
+const noopSistRoot: ComponentType<object> = () => null;
 
 /**
- * Static registry of active sists. Each sist ships its own manifest so the
- * portal only needs to import and register. New sists = add one line.
- *
- * "Coming-soon" placeholders are defined inline until their packages land.
+ * Active sists: metadata is eager (manifest-meta); route trees load on demand.
+ * Pulse remains an inline placeholder until the package lands.
  */
 export const sists: SistManifest[] = [
-  dataManifest,
-  ecoManifest,
+  { ...dataMeta, element: lazyData },
+  { ...ecoMeta, element: lazyEco },
+  { ...spaceMeta, element: lazySpace },
   {
     id: "pulse",
     name: "PulseSist",
     tagline: "Markets pedagogy — tickers, flows, and teach-me-what-moved.",
     path: "/pulse",
-    element: () => null,
+    element: noopSistRoot,
     accent: "ufo",
     icon: "▲",
-    status: "coming-soon",
-  },
-  {
-    id: "space",
-    name: "SpaceSist",
-    tagline: "NASA-themed missions, imagery, and space data.",
-    path: "/space",
-    element: () => null,
-    accent: "ink",
-    icon: "☄",
-    status: "coming-soon",
-  },
-  {
-    id: "tika",
-    name: "TikaSist",
-    tagline: "Social signal monitor — keywords, videos, scan history.",
-    path: "/tika",
-    element: () => null,
-    accent: "signal",
-    icon: "◐",
     status: "coming-soon",
   },
 ];

@@ -63,6 +63,34 @@ const DataCenterPatch = DataCenterInput.partial();
 const notConfigured = (e: unknown) =>
   e instanceof Error && e.message === "data_db_not_configured";
 
+const FRESHNESS_WINDOWS_HOURS = {
+  fresh: 24 * 14,
+  stale: 24 * 60,
+} as const;
+
+const DATASIST_PROVENANCE = [
+  {
+    id: "company-disclosures",
+    label: "Company disclosures",
+    reliability: "high",
+  },
+  {
+    id: "public-filings",
+    label: "Public filings",
+    reliability: "high",
+  },
+  {
+    id: "agency-public-records",
+    label: "Agency/public records",
+    reliability: "medium",
+  },
+  {
+    id: "local-reporting",
+    label: "Local reporting",
+    reliability: "medium",
+  },
+] as const;
+
 /**
  * Short fingerprint of the bearer so the audit log shows *who* made each
  * change without storing the raw token. SHA-256 → first 12 hex chars.
@@ -127,6 +155,66 @@ data.get("/stats", async (c) => {
   try {
     const stats = await getStats(c.env);
     return c.json(stats);
+  } catch (err) {
+    if (notConfigured(err)) return c.json({ error: "not_configured" }, 503);
+    throw err;
+  }
+});
+
+/** GET /data/overview — freshness + provenance profile for operational trust. */
+data.get("/overview", async (c) => {
+  try {
+    const [list, stats] = await Promise.all([
+      listDataCenters(c.env, { limit: 1000, offset: 0 }),
+      getStats(c.env),
+    ]);
+
+    const now = Date.now();
+    let freshestMs: number | null = null;
+    let stalestMs: number | null = null;
+    let freshCount = 0;
+    let agingCount = 0;
+    let staleCount = 0;
+
+    for (const item of list.items) {
+      const ts = Date.parse(item.updatedAt);
+      if (!Number.isFinite(ts)) continue;
+      const ageMs = Math.max(0, now - ts);
+      if (freshestMs === null || ageMs < freshestMs) freshestMs = ageMs;
+      if (stalestMs === null || ageMs > stalestMs) stalestMs = ageMs;
+
+      const ageHours = ageMs / (1000 * 60 * 60);
+      if (ageHours <= FRESHNESS_WINDOWS_HOURS.fresh) {
+        freshCount += 1;
+      } else if (ageHours <= FRESHNESS_WINDOWS_HOURS.stale) {
+        agingCount += 1;
+      } else {
+        staleCount += 1;
+      }
+    }
+
+    const newestUpdatedAt =
+      freshestMs === null ? null : new Date(now - freshestMs).toISOString();
+    const oldestUpdatedAt =
+      stalestMs === null ? null : new Date(now - stalestMs).toISOString();
+
+    return c.json({
+      generatedAt: new Date(now).toISOString(),
+      dataset: {
+        totalFacilities: stats.totalFacilities,
+        totalCapacityMW: stats.totalCapacityMW,
+        newestUpdatedAt,
+        oldestUpdatedAt,
+      },
+      freshness: {
+        freshCount,
+        agingCount,
+        staleCount,
+        freshWindowHours: FRESHNESS_WINDOWS_HOURS.fresh,
+        staleWindowHours: FRESHNESS_WINDOWS_HOURS.stale,
+      },
+      provenance: DATASIST_PROVENANCE,
+    });
   } catch (err) {
     if (notConfigured(err)) return c.json({ error: "not_configured" }, 503);
     throw err;

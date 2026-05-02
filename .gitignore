@@ -11,6 +11,10 @@ dist/
 .dev.vars
 
 *.log
+
+# Local screenshots / scratch assets (not for version control)
+.aliasist-home.png
+
 .DS_Store
 .idea/
 .vscode/*

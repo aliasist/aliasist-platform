@@ -14,6 +14,7 @@
     "@aliasist/api-client": "workspace:*",
     "@aliasist/sist-data": "workspace:*",
     "@aliasist/sist-eco": "workspace:*",
+    "@aliasist/sist-space": "workspace:*",
     "@aliasist/ui": "workspace:*",
     "clsx": "^2.1.1",
     "react": "^18.3.1",

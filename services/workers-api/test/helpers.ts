@@ -26,6 +26,9 @@ export const makeHarness = (overrides: Partial<Env> = {}): TestHarness => {
   const db = createD1Shim(MIGRATIONS_DIR);
   const env: Env = {
     ALLOWED_ORIGIN: "http://localhost:5173",
+    CORS_ALLOW_CF_PAGES: "false",
+    SPACE_ASK_RATE_WINDOW_MS: "60000",
+    SPACE_ASK_RATE_MAX: "10000",
     AI_OLLAMA_MODEL: "llama3.1:8b",
     AI_GROQ_MODEL: "llama-3.3-70b-versatile",
     ADMIN_TOKEN: TEST_TOKEN,

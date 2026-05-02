@@ -16,7 +16,7 @@ export const HealthResponse = z.object({
 });
 export type HealthResponse = z.infer<typeof HealthResponse>;
 
-export const SIST_IDS = ["data", "eco", "pulse", "space", "tika"] as const;
+export const SIST_IDS = ["data", "eco", "pulse", "space"] as const;
 export type SistId = (typeof SIST_IDS)[number];
 
 export const AiExplainRequest = z.object({
@@ -33,6 +33,213 @@ export const AiExplainResponse = z.object({
   latencyMs: z.number(),
 });
 export type AiExplainResponse = z.infer<typeof AiExplainResponse>;
+
+// --- SpaceSist ---
+
+export const SpaceAskRequest = z.object({
+  question: z.string().min(1).max(4000),
+  topK: z.number().int().min(1).max(8).optional(),
+});
+export type SpaceAskRequest = z.infer<typeof SpaceAskRequest>;
+
+export const SpaceAskResponse = z.object({
+  answer: z.string(),
+  model: z.string(),
+  source: z.enum(["ollama", "workers-ai", "gemini", "local-rag"]),
+  latencyMs: z.number(),
+  chunks: z.array(
+    z.object({
+      id: z.string(),
+      source: z.string(),
+      score: z.number(),
+      text: z.string(),
+      metadata: z.record(z.string(), z.unknown()),
+    }),
+  ),
+});
+export type SpaceAskResponse = z.infer<typeof SpaceAskResponse>;
+
+export const SpaceApod = z.object({
+  source: z.string(),
+  title: z.string(),
+  date: z.string(),
+  explanation: z.string(),
+  imageUrl: z.string(),
+  hdUrl: z.string().nullable(),
+  mediaType: z.string(),
+  copyright: z.string().nullable(),
+});
+export type SpaceApod = z.infer<typeof SpaceApod>;
+
+export const SpaceIss = z.object({
+  source: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  altitudeKm: z.number().nullable(),
+  velocityKmh: z.number().nullable(),
+  dayNight: z.enum(["day", "night", "terminator"]),
+  timestamp: z.string(),
+});
+export type SpaceIss = z.infer<typeof SpaceIss>;
+
+export const SpacePerson = z.object({
+  name: z.string(),
+  craft: z.string(),
+  agency: z.string(),
+  countryCode: z.string(),
+});
+export type SpacePerson = z.infer<typeof SpacePerson>;
+
+export const SpacePeople = z.object({
+  source: z.string(),
+  count: z.number(),
+  people: z.array(SpacePerson),
+});
+export type SpacePeople = z.infer<typeof SpacePeople>;
+
+export const SpaceNextLaunch = z.object({
+  source: z.string(),
+  mission: z.string(),
+  rocket: z.string(),
+  launchIso: z.string(),
+  site: z.string(),
+  status: z.enum(["go", "hold", "tbd", "success", "scrubbed"]),
+  webcastLabel: z.string(),
+  webcastUrl: z.string(),
+  windowSummary: z.string(),
+  details: z.string().nullable(),
+  flightNumber: z.number().nullable(),
+  patchImageUrl: z.string().nullable(),
+});
+export type SpaceNextLaunch = z.infer<typeof SpaceNextLaunch>;
+
+export const SpaceWeatherEvent = z.object({
+  id: z.string(),
+  source: z.string(),
+  kind: z.enum(["flare", "geomagnetic-storm", "cme"]),
+  title: z.string(),
+  startTime: z.string(),
+  endTime: z.string().nullable(),
+  peakTime: z.string().nullable(),
+  severity: z.string().nullable(),
+  score: z.number().nullable(),
+  location: z.string().nullable(),
+  note: z.string().nullable(),
+  linkedEventIds: z.array(z.string()),
+});
+export type SpaceWeatherEvent = z.infer<typeof SpaceWeatherEvent>;
+
+export const SpaceWeatherEventList = z.object({
+  source: z.string(),
+  generatedAt: z.string(),
+  count: z.number(),
+  items: z.array(SpaceWeatherEvent),
+});
+export type SpaceWeatherEventList = z.infer<typeof SpaceWeatherEventList>;
+
+export const SpaceWeatherEventDetail = z.object({
+  source: z.string(),
+  item: SpaceWeatherEvent,
+});
+export type SpaceWeatherEventDetail = z.infer<typeof SpaceWeatherEventDetail>;
+
+export const SpaceWeatherSummary = z.object({
+  source: z.string(),
+  generatedAt: z.string(),
+  status: z.enum(["quiet", "watch", "active"]),
+  latestHeadline: z.string().nullable(),
+  strongestFlareClass: z.string().nullable(),
+  maxKpIndex: z.number().nullable(),
+  latestCmeSpeedKms: z.number().nullable(),
+  eventCounts: z.object({
+    flares: z.number(),
+    geomagneticStorms: z.number(),
+    cmes: z.number(),
+  }),
+});
+export type SpaceWeatherSummary = z.infer<typeof SpaceWeatherSummary>;
+
+export const SpaceTargetLookupItem = z.object({
+  id: z.string(),
+  name: z.string(),
+  objectType: z.string(),
+  primaryDesignation: z.string().nullable(),
+  spkId: z.string(),
+  aliases: z.array(z.string()),
+});
+export type SpaceTargetLookupItem = z.infer<typeof SpaceTargetLookupItem>;
+
+export const SpaceTargetLookupResponse = z.object({
+  source: z.string(),
+  query: z.string(),
+  count: z.number(),
+  items: z.array(SpaceTargetLookupItem),
+});
+export type SpaceTargetLookupResponse = z.infer<typeof SpaceTargetLookupResponse>;
+
+export const SpaceTargetEphemerisRow = z.object({
+  time: z.string(),
+  ra: z.string(),
+  dec: z.string(),
+  apparentMagnitude: z.number().nullable(),
+  distanceAu: z.number().nullable(),
+  deltaDotKms: z.number().nullable(),
+  raw: z.string(),
+});
+export type SpaceTargetEphemerisRow = z.infer<typeof SpaceTargetEphemerisRow>;
+
+export const SpaceTargetEphemeris = z.object({
+  source: z.string(),
+  target: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+  center: z.object({
+    code: z.string(),
+    bodyName: z.string(),
+    siteName: z.string(),
+  }),
+  startTime: z.string(),
+  stopTime: z.string(),
+  stepSize: z.string(),
+  rowCount: z.number(),
+  rows: z.array(SpaceTargetEphemerisRow),
+  summary: z.object({
+    firstTime: z.string().nullable(),
+    lastTime: z.string().nullable(),
+    brightestMagnitude: z.number().nullable(),
+    closestDistanceAu: z.number().nullable(),
+    fastestRangeRateKms: z.number().nullable(),
+  }),
+});
+export type SpaceTargetEphemeris = z.infer<typeof SpaceTargetEphemeris>;
+
+export const SpaceObservationItem = z.object({
+  obsId: z.string(),
+  obsTitle: z.string(),
+  collection: z.string(),
+  instrument: z.string(),
+  targetName: z.string(),
+  dataProductType: z.string(),
+  accessUrl: z.string().nullable(),
+  accessFormat: z.string().nullable(),
+  previewUrl: z.string().nullable(),
+  observationTime: z.string().nullable(),
+  isVisual: z.boolean(),
+});
+export type SpaceObservationItem = z.infer<typeof SpaceObservationItem>;
+
+export const SpaceObservationSearchResponse = z.object({
+  source: z.string(),
+  query: z.string(),
+  resolvedName: z.string().nullable(),
+  ra: z.number().nullable(),
+  dec: z.number().nullable(),
+  radius: z.number(),
+  count: z.number(),
+  items: z.array(SpaceObservationItem),
+});
+export type SpaceObservationSearchResponse = z.infer<typeof SpaceObservationSearchResponse>;
 
 // --- DataSist ---
 
@@ -104,6 +311,31 @@ export const DataCenterStats = z.object({
   ),
 });
 export type DataCenterStats = z.infer<typeof DataCenterStats>;
+
+export const DataCenterOverview = z.object({
+  generatedAt: z.string(),
+  dataset: z.object({
+    totalFacilities: z.number(),
+    totalCapacityMW: z.number(),
+    newestUpdatedAt: z.string().nullable(),
+    oldestUpdatedAt: z.string().nullable(),
+  }),
+  freshness: z.object({
+    freshCount: z.number(),
+    agingCount: z.number(),
+    staleCount: z.number(),
+    freshWindowHours: z.number(),
+    staleWindowHours: z.number(),
+  }),
+  provenance: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      reliability: z.enum(["high", "medium", "low"]),
+    }),
+  ),
+});
+export type DataCenterOverview = z.infer<typeof DataCenterOverview>;
 
 export interface ListDataCentersFilters {
   country?: string;
@@ -339,6 +571,52 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
         AiExplainResponse,
       ),
 
+    spaceAsk: (body: SpaceAskRequest) =>
+      request(
+        "/space/ask",
+        { method: "POST", body: JSON.stringify(SpaceAskRequest.parse(body)) },
+        SpaceAskResponse,
+      ),
+
+    spaceApod: () => request("/space/apod", { method: "GET" }, SpaceApod),
+
+    spaceIss: () => request("/space/iss", { method: "GET" }, SpaceIss),
+
+    spacePeople: () => request("/space/people", { method: "GET" }, SpacePeople),
+
+    spaceNextLaunch: () =>
+      request("/space/launches/next", { method: "GET" }, SpaceNextLaunch),
+
+    spaceWeatherSummary: () =>
+      request("/space/weather/summary", { method: "GET" }, SpaceWeatherSummary),
+
+    spaceWeatherEvents: () =>
+      request("/space/weather/events", { method: "GET" }, SpaceWeatherEventList),
+
+    spaceWeatherEvent: (id: string) =>
+      request(`/space/weather/events/${encodeURIComponent(id)}`, { method: "GET" }, SpaceWeatherEventDetail),
+
+    spaceTargetLookup: (query: string, group?: string) =>
+      request(
+        `/space/targets/lookup${buildQuery({ q: query, group })}`,
+        { method: "GET" },
+        SpaceTargetLookupResponse,
+      ),
+
+    spaceTargetEphemeris: (id: string, opts: { days?: number; stepHours?: number } = {}) =>
+      request(
+        `/space/targets/${encodeURIComponent(id)}/ephemeris${buildQuery(opts)}`,
+        { method: "GET" },
+        SpaceTargetEphemeris,
+      ),
+
+    spaceObservationSearch: (query: string, opts: { radius?: number; limit?: number } = {}) =>
+      request(
+        `/space/observations/search${buildQuery({ q: query, ...opts })}`,
+        { method: "GET" },
+        SpaceObservationSearchResponse,
+      ),
+
     listDataCenters: (filters: ListDataCentersFilters = {}) =>
       request(
         `/data/data-centers${buildQuery(filters as Record<string, unknown>)}`,
@@ -355,6 +633,9 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
 
     getDataCenterStats: () =>
       request("/data/stats", { method: "GET" }, DataCenterStats),
+
+    getDataCenterOverview: () =>
+      request("/data/overview", { method: "GET" }, DataCenterOverview),
 
     // --- admin (requires bearer token) ---
 

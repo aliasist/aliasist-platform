@@ -1,8 +1,98 @@
 /* Aliasist UI — global styles consumed by apps/portal via @aliasist/ui/styles.css */
 
-:root {
+:root,
+html[data-theme="lab"] {
   color-scheme: dark;
-  --aliasist-radius: 14px;
+  --aliasist-theme-name: "lab";
+  --aliasist-bg: #080b12;
+  --aliasist-surface: #0e1420;
+  --aliasist-surface-elevated: #151d2b;
+  --aliasist-surface-soft: rgba(255, 255, 255, 0.03);
+  --aliasist-border: rgba(255, 255, 255, 0.08);
+  --aliasist-border-strong: rgba(255, 255, 255, 0.12);
+  --aliasist-text: #f7f9fc;
+  --aliasist-text-muted: #9ca7b8;
+  --aliasist-text-soft: #c4cbd6;
+  --aliasist-accent: #2f95dc;
+  --aliasist-accent-soft: rgba(47, 149, 220, 0.16);
+  --aliasist-accent-contrast: #ffffff;
+  --aliasist-accent-strong: #0bcf72;
+  --aliasist-accent-warm: rgba(255, 179, 71, 0.12);
+  --aliasist-warning: #ffb347;
+  --aliasist-danger: #ef4444;
+  --aliasist-shadow-panel:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 18px 45px -30px rgba(0, 0, 0, 0.75);
+  --aliasist-shadow-glow:
+    0 0 0 1px rgba(47, 149, 220, 0.18), 0 18px 40px -26px rgba(47, 149, 220, 0.45);
+  --aliasist-shell-orb-1: rgba(47, 149, 220, 0.16);
+  --aliasist-shell-orb-2: rgba(255, 179, 71, 0.045);
+  --aliasist-shell-orb-3: rgba(11, 207, 114, 0.18);
+  --aliasist-shell-vignette:
+    radial-gradient(ellipse 72% 62% at 50% 44%, transparent 32%, rgba(5, 6, 10, 0.55) 100%);
+}
+
+html[data-theme="aurora"] {
+  color-scheme: dark;
+  --aliasist-theme-name: "aurora";
+  --aliasist-bg: #061118;
+  --aliasist-surface: #0b1722;
+  --aliasist-surface-elevated: #122231;
+  --aliasist-surface-soft: rgba(255, 255, 255, 0.035);
+  --aliasist-border: rgba(132, 170, 204, 0.16);
+  --aliasist-border-strong: rgba(132, 170, 204, 0.24);
+  --aliasist-text: #f3f7fb;
+  --aliasist-text-muted: #a4b7c6;
+  --aliasist-text-soft: #d2dce5;
+  --aliasist-accent: #7dd3fc;
+  --aliasist-accent-soft: rgba(125, 211, 252, 0.16);
+  --aliasist-accent-contrast: #071018;
+  --aliasist-accent-strong: #99f6e4;
+  --aliasist-accent-warm: rgba(255, 184, 107, 0.14);
+  --aliasist-warning: #ffb86b;
+  --aliasist-danger: #fb7185;
+  --aliasist-shadow-panel:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 20px 48px -30px rgba(0, 0, 0, 0.78);
+  --aliasist-shadow-glow:
+    0 0 0 1px rgba(125, 211, 252, 0.2), 0 18px 40px -26px rgba(125, 211, 252, 0.34);
+  --aliasist-shell-orb-1: rgba(125, 211, 252, 0.16);
+  --aliasist-shell-orb-2: rgba(153, 246, 228, 0.06);
+  --aliasist-shell-orb-3: rgba(255, 184, 107, 0.14);
+  --aliasist-shell-vignette:
+    radial-gradient(ellipse 72% 62% at 50% 44%, transparent 32%, rgba(5, 8, 14, 0.58) 100%);
+}
+
+html[data-theme="ember"] {
+  color-scheme: dark;
+  --aliasist-theme-name: "ember";
+  --aliasist-bg: #050505;
+  --aliasist-surface: #0b0b0b;
+  --aliasist-surface-elevated: #121212;
+  --aliasist-surface-soft: rgba(255, 255, 255, 0.035);
+  --aliasist-border: rgba(255, 122, 24, 0.18);
+  --aliasist-border-strong: rgba(255, 122, 24, 0.28);
+  --aliasist-text: #f7f5f1;
+  --aliasist-text-muted: #c9beb2;
+  --aliasist-text-soft: #e5d8c8;
+  --aliasist-accent: #ff7a18;
+  --aliasist-accent-soft: rgba(255, 122, 24, 0.16);
+  --aliasist-accent-contrast: #120700;
+  --aliasist-accent-strong: #ff9b33;
+  --aliasist-accent-warm: rgba(255, 156, 51, 0.2);
+  --aliasist-warning: #ffb347;
+  --aliasist-danger: #ff6262;
+  --aliasist-shadow-panel:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 20px 54px -30px rgba(255, 122, 24, 0.16);
+  --aliasist-shadow-glow:
+    0 0 0 1px rgba(255, 122, 24, 0.18), 0 18px 40px -26px rgba(255, 122, 24, 0.42);
+  --aliasist-shell-orb-1: rgba(255, 122, 24, 0.2);
+  --aliasist-shell-orb-2: rgba(255, 184, 107, 0.05);
+  --aliasist-shell-orb-3: rgba(255, 122, 24, 0.12);
+  --aliasist-shell-vignette:
+    radial-gradient(ellipse 72% 62% at 50% 44%, transparent 32%, rgba(4, 4, 5, 0.6) 100%);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -12,6 +102,8 @@ body,
 }
 
 body {
+  background: var(--aliasist-bg);
+  color: var(--aliasist-text);
   font-family: Inter, "Inter Variable", system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01";
   -webkit-font-smoothing: antialiased;
@@ -22,8 +114,149 @@ body {
   outline: none;
 }
 
-/* selection */
 ::selection {
-  background: rgba(11, 207, 114, 0.25);
-  color: #f3f5f9;
+  background: color-mix(in srgb, var(--aliasist-accent) 24%, transparent);
+  color: var(--aliasist-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.aliasist-shell {
+  background: var(--aliasist-bg);
+  color: var(--aliasist-text);
+}
+
+.aliasist-shell-header,
+.aliasist-shell-footer {
+  backdrop-filter: blur(24px) saturate(150%);
+  background: color-mix(in srgb, var(--aliasist-bg) 78%, transparent);
+  border-color: var(--aliasist-border);
+}
+
+.aliasist-shell-accent {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--aliasist-accent) 55%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+.aliasist-panel {
+  background: color-mix(in srgb, var(--aliasist-surface) 92%, transparent);
+  border: 1px solid var(--aliasist-border);
+  box-shadow: var(--aliasist-shadow-panel);
+}
+
+.aliasist-panel-lab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: aliasist-scanlines 6s linear infinite;
+}
+
+.aliasist-button-primary {
+  background: var(--aliasist-accent);
+  color: var(--aliasist-accent-contrast);
+  box-shadow: var(--aliasist-shadow-glow);
+}
+
+.aliasist-button-ghost {
+  background: transparent;
+  color: var(--aliasist-text);
+}
+
+.aliasist-button-ghost:hover {
+  background: color-mix(in srgb, var(--aliasist-text) 8%, transparent);
+}
+
+.aliasist-button-outline {
+  border: 1px solid var(--aliasist-border-strong);
+  background: color-mix(in srgb, var(--aliasist-text) 3%, transparent);
+  color: var(--aliasist-text);
+}
+
+.aliasist-button-outline:hover {
+  border-color: var(--aliasist-border-strong);
+  color: var(--aliasist-accent-soft);
+}
+
+.aliasist-button-danger {
+  background: var(--aliasist-danger);
+  color: #fff;
+}
+
+.aliasist-pill {
+  border: 1px solid var(--aliasist-border);
+  background: color-mix(in srgb, var(--aliasist-surface) 75%, transparent);
+  color: var(--aliasist-text-soft);
+}
+
+.aliasist-pill-live {
+  border-color: color-mix(in srgb, var(--aliasist-accent-strong) 44%, transparent);
+  background: color-mix(in srgb, var(--aliasist-accent-strong) 10%, transparent);
+  color: var(--aliasist-accent-strong);
+}
+
+.aliasist-pill-beta {
+  border-color: color-mix(in srgb, var(--aliasist-warning) 44%, transparent);
+  background: color-mix(in srgb, var(--aliasist-warning) 10%, transparent);
+  color: var(--aliasist-warning);
+}
+
+.aliasist-pill-alpha {
+  border-color: var(--aliasist-border);
+  background: color-mix(in srgb, var(--aliasist-surface) 78%, transparent);
+  color: var(--aliasist-text-muted);
+}
+
+.aliasist-pill-soon {
+  border-color: color-mix(in srgb, var(--aliasist-text-muted) 32%, transparent);
+  background: color-mix(in srgb, var(--aliasist-surface) 68%, transparent);
+  color: var(--aliasist-text-muted);
+}
+
+.aliasist-pill-warn {
+  border-color: color-mix(in srgb, var(--aliasist-warning) 54%, transparent);
+  background: color-mix(in srgb, var(--aliasist-warning) 12%, transparent);
+  color: var(--aliasist-warning);
+}
+
+.aliasist-pill-danger {
+  border-color: color-mix(in srgb, var(--aliasist-danger) 60%, transparent);
+  background: color-mix(in srgb, var(--aliasist-danger) 10%, transparent);
+  color: var(--aliasist-danger);
+}
+
+.aliasist-nav-card {
+  background: color-mix(in srgb, var(--aliasist-surface) 80%, transparent);
+  border: 1px solid var(--aliasist-border);
+  box-shadow: var(--aliasist-shadow-panel);
+}
+
+.aliasist-nav-card-active {
+  border-color: color-mix(in srgb, var(--aliasist-accent) 60%, transparent);
+  box-shadow: var(--aliasist-shadow-glow);
+}
+
+@keyframes aliasist-scanlines {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(20px);
+  }
 }
