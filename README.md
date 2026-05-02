@@ -125,6 +125,8 @@ SpaceSist RAG answers use the Worker-side waterfall:
 
 **Space `/space/ask` limits** (see `services/workers-api/wrangler.toml`): **`SPACE_ASK_RATE_MAX`** (default 24) and **`SPACE_ASK_RATE_WINDOW_MS`** (default 60000) throttle bursts per client IP inside each isolate; JSON bodies larger than **20480** bytes are rejected. **`CORS_ALLOW_CF_PAGES`** is **`true`** in the default worker vars for `https://*.pages.dev` preview sites and **`false`** under **`[env.production]`**.
 
+Production sanity check: **`GET https://api.aliasist.tech/space/rag/status`** returns corpus chunk counts and which providers are configured (no secrets). The SpaceSist UI loads the same summary above **Ask SpaceSist**.
+
 ## Status
 
 | Phase | Scope                                                | State        |

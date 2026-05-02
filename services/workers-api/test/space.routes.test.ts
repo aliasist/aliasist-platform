@@ -642,3 +642,26 @@ describe("CORS (Pages previews)", () => {
     expect(res.headers.get("Access-Control-Allow-Origin")).toBeNull();
   });
 });
+
+describe("GET /space/rag/status", () => {
+  it("reports corpus size and provider flags", async () => {
+    const { request } = makeHarness();
+    const res = await request("/space/rag/status");
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      chunkCount: number;
+      corpusDocuments: number;
+      retrievalMode: string;
+      semanticEmbeddingsReady: boolean;
+      providers: { ollamaChat: boolean; workersAi: boolean; gemini: boolean };
+    };
+    expect(body.chunkCount).toBeGreaterThan(0);
+    expect(body.corpusDocuments).toBeGreaterThan(0);
+    expect(["keyword", "semantic"]).toContain(body.retrievalMode);
+    expect(body.providers).toMatchObject({
+      ollamaChat: expect.any(Boolean),
+      workersAi: expect.any(Boolean),
+      gemini: expect.any(Boolean),
+    });
+  });
+});

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
   AliasistApiError,
+  type SpaceRagStatus,
   type SpaceTargetEphemeris,
   type SpaceAskResponse,
   type SpaceObservationItem,
@@ -143,6 +144,14 @@ const formatAskError = (error: unknown): string => {
   return "SpaceSist query failed.";
 };
 
+const ragLlmSummary = (s: SpaceRagStatus): string => {
+  const parts: string[] = [];
+  if (s.providers.ollamaChat) parts.push("Ollama");
+  if (s.providers.workersAi) parts.push("Workers AI");
+  if (s.providers.gemini) parts.push("Gemini");
+  return parts.length ? parts.join(" · ") : "retrieval-only (no remote LLM)";
+};
+
 const formatTopic = (value: unknown) => {
   if (typeof value !== "string" || !value) return null;
   return value
@@ -166,6 +175,7 @@ export const SpaceSistHome = () => {
   const [answer, setAnswer] = useState<SpaceAskResponse | null>(null);
   const [askError, setAskError] = useState<string | null>(null);
   const [isAsking, setIsAsking] = useState(false);
+  const [ragStatus, setRagStatus] = useState<SpaceRagStatus | null>(null);
   const [apod, setApod] = useState<ApodView>(MOCK_APOD);
   const [people, setPeople] = useState<SpacePerson[]>(MOCK_PEOPLE_IN_SPACE);
   const [launch, setLaunch] = useState<SpacexLaunchPreview>(MOCK_SPACEX_NEXT);
@@ -327,6 +337,21 @@ export const SpaceSistHome = () => {
 
     void loadFeeds();
 
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void api()
+      .spaceRagStatus()
+      .then((s) => {
+        if (!cancelled) setRagStatus(s);
+      })
+      .catch(() => {
+        if (!cancelled) setRagStatus(null);
+      });
     return () => {
       cancelled = true;
     };
@@ -983,6 +1008,22 @@ export const SpaceSistHome = () => {
         <section className="grid gap-6 lg:grid-cols-2 lg:items-start">
           <Card className="p-5">
             <SectionTitle eyebrow="Grounded Q&A" title="Ask SpaceSist" />
+            {ragStatus ? (
+              <p className="mt-2 text-xs leading-relaxed text-ink-500">
+                Worker RAG: <span className="text-ink-300">{ragStatus.chunkCount}</span> chunks from{" "}
+                <span className="text-ink-300">{ragStatus.corpusDocuments}</span> documents ·{" "}
+                <span className="text-ink-300">{ragStatus.retrievalMode}</span> retrieval
+                {ragStatus.retrievalMode === "semantic" && !ragStatus.semanticEmbeddingsReady ? (
+                  <span className="text-signal-400">
+                    {" "}
+                    · semantic requested but embedding gateway missing — using keyword fallback
+                  </span>
+                ) : null}
+                . Models: <span className="text-ink-300">{ragLlmSummary(ragStatus)}</span>.
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-ink-500">Checking worker RAG status…</p>
+            )}
             <label className="mt-4 block">
               <span className="text-xs font-medium text-ink-400">
                 Mission question

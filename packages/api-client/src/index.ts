@@ -59,6 +59,22 @@ export const SpaceAskResponse = z.object({
 });
 export type SpaceAskResponse = z.infer<typeof SpaceAskResponse>;
 
+/** Worker introspection for Space RAG — safe for production (no secrets). */
+export const SpaceRagStatus = z.object({
+  generatedAt: z.string(),
+  corpusDocuments: z.number(),
+  chunkCount: z.number(),
+  retrievalMode: z.enum(["keyword", "semantic"]),
+  semanticEmbeddingsReady: z.boolean(),
+  embeddingGatewayConfigured: z.boolean(),
+  providers: z.object({
+    ollamaChat: z.boolean(),
+    workersAi: z.boolean(),
+    gemini: z.boolean(),
+  }),
+});
+export type SpaceRagStatus = z.infer<typeof SpaceRagStatus>;
+
 export const SpaceApod = z.object({
   source: z.string(),
   title: z.string(),
@@ -577,6 +593,9 @@ export const createClient = ({ baseUrl, fetchImpl, token }: ClientOptions) => {
         { method: "POST", body: JSON.stringify(SpaceAskRequest.parse(body)) },
         SpaceAskResponse,
       ),
+
+    spaceRagStatus: () =>
+      request("/space/rag/status", { method: "GET" }, SpaceRagStatus),
 
     spaceApod: () => request("/space/apod", { method: "GET" }, SpaceApod),
 

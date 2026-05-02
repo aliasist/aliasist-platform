@@ -1066,6 +1066,29 @@ space.get("/weather/summary", async (c) => {
 
 const SPACE_ASK_MAX_BYTES = 20_480;
 
+space.get("/rag/status", async (c) => {
+  const retrievalMode = ragRetrievalMode(c.env);
+  const embeddingGatewayConfigured = Boolean(semanticEmbeddingHost(c.env));
+  const embedder = semanticEmbedderFor(c.env);
+  return c.json(
+    {
+      generatedAt: new Date().toISOString(),
+      corpusDocuments: spaceCorpus.length,
+      chunkCount: chunks.length,
+      retrievalMode,
+      semanticEmbeddingsReady: retrievalMode === "semantic" && Boolean(embedder),
+      embeddingGatewayConfigured,
+      providers: {
+        ollamaChat: Boolean(c.env.OLLAMA_URL ?? c.env.AI_OLLAMA_URL),
+        workersAi: Boolean(c.env.AI),
+        gemini: Boolean(c.env.GEMINI_API_KEY),
+      },
+    },
+    200,
+    cacheHeaders(60),
+  );
+});
+
 space.post("/ask", spaceAskRateLimit, async (c) => {
   const raw = await c.req.text();
   if (raw.length > SPACE_ASK_MAX_BYTES) {
