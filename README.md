@@ -73,7 +73,7 @@ pnpm dev          # runs portal (5173) + workers-api (8787) in parallel
 ```bash
 pnpm build        # build every workspace (respects turbo graph)
 pnpm typecheck    # tsc --noEmit across all packages
-pnpm lint         # (wired up in Phase 2b)
+pnpm lint         # no-op placeholder (use typecheck for static analysis)
 ```
 
 ## Deployment

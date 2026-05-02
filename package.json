@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "lint": "turbo run lint",
+    "lint": "node -e \"console.log('lint: skipped (no ESLint tasks); static checks: pnpm typecheck')\"",
     "test:rag-smoke": "node scripts/rag/test-rag-smoke.mjs",
     "test:rag-embeddings": "node scripts/rag/test-rag-embeddings.mjs",
     "test:rag-index": "node scripts/rag/test-rag-index.mjs",
