@@ -1,5 +1,7 @@
 # Aliasist Platform
 
+![Aliasist banner](https://raw.githubusercontent.com/aliasist/aliasistabductor/master/images/aliasist_banner_orbit.png)
+
 Aliasist Platform is the private suite repo for the main product surface.
 
 It combines:
