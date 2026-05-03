@@ -12,3 +12,5 @@ It combines:
 - shared UI and retrieval packages
 
 The repo keeps the suite aligned as one system without exposing the implementation details here.
+
+Organization map: [`docs/REPO_MAP.md`](docs/REPO_MAP.md).
